@@ -1,0 +1,1 @@
+export { useGuestAssets } from './useGuestAssets'

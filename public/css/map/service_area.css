@@ -1,0 +1,68 @@
+.map-sec {
+    position: relative;
+    max-width: 990px;
+    margin-left: auto;
+}
+
+a.m-country {
+    position: relative;
+}
+
+.map-sec a.m-country:hover title {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.description {
+    pointer-events: none;
+    position: absolute;
+    font-size: 16px;
+    text-align: center;
+    background: #0d2322;
+    padding: 6px 10px;
+    z-index: 5;
+    /*   height: 30px;
+line-height: 30px; */
+    margin: 0 auto;
+    color: #fff;
+    border-radius: 5px;
+    /*box-shadow: 0 0 0 1px #eee;*/
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    display: none;
+    text-transform: uppercase;
+}
+
+.description.active {
+    display: block;
+}
+
+.description:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 0;
+    margin-left: -10px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #0d2322;
+}
+
+a.m-country path {
+    fill: #E8E8DD;
+}
+
+g#border-map {
+    fill: #A7BCB5;
+}
+
+a.m-country.active path {
+    fill: #789794;
+}

@@ -1,0 +1,57 @@
+/* This rule remains global as the backdrop is a shared element in Bootstrap. */
+.modal-backdrop {
+    z-index: 1029 !important;
+}
+
+/* Scoped styles for the SMS Widget Modal */
+#sendSmsModal .modal-header {
+    background-color: #DAF5EF;
+    border-bottom: 1px solid #DAF5EF;
+}
+
+#sendSmsModal .modal-header .modal-title {
+    font-weight: 600;
+}
+
+#sendSmsModal .help-block.text-info {
+    font-size: 12px;
+    font-style: italic;
+    color: #31708f;
+}
+
+/* Tab Styles */
+#sendSmsModal .nav-tabs > li > a {
+    border-radius: 4px 4px 0 0;
+    background-color: #ffffff;
+    color: #555;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0px;
+}
+
+#sendSmsModal .nav-tabs > li.active > a,
+#sendSmsModal .nav-tabs > li.active > a:hover,
+#sendSmsModal .nav-tabs > li.active > a:focus {
+    color: #555;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-bottom-color: transparent;
+    cursor: default;
+}
+
+#sendSmsModal .tab-content {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-top: 0;
+    border-radius: 0 0 4px 4px;
+}
+.or-separator {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 10px;
+}
+.dropdown-wrapper {
+    position: relative;
+}

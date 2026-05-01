@@ -1,0 +1,102 @@
+:root {
+    --btn-tab-color: rgba(213, 213, 213, 0.784);
+}
+
+.note {
+    color: #337ab7;
+    margin-top: -3px;
+}
+
+.gap-lg {
+    row-gap: 10px;
+    column-gap: 10px;
+}
+
+@media (max-width: 767.98px) {
+    .gap-sm {
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: 8px;
+        column-gap: 8px;
+    }
+}
+
+.commission-header {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 0px 10px;
+    height: auto;
+    align-items: flex-start; /* shift content to the left */
+    border-bottom: 1px solid black;
+    flex-wrap: wrap;
+    /* allows wrapping on small screens */
+    row-gap: 5px;
+    /* background-color: yellow; */
+
+}
+
+.box-title {
+    margin: auto 0px;
+    margin-left: 15px;
+}
+
+.tab-container {
+    display: flex;
+    /* height:50px; */
+    height: auto;
+    margin-left: 15px;
+}
+
+.tab-btn {
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 10px 16px;
+    background-color: white;
+    width: 100px;
+}
+
+.tab-btn.active {
+    background-color:var(--btn-tab-color);
+
+}
+
+#orderDateTab {
+    border-radius: 8px 0px 0 0;
+    border-top: 1px solid var(--btn-tab-color);
+    border-left: 1px solid var(--btn-tab-color);
+}
+
+#txnDateTab {
+    border-radius: 0px 8px 0 0;
+    border-top: 1px solid var(--btn-tab-color);
+    border-right: 1px solid var(--btn-tab-color);
+    width: 200px;
+}
+
+/* ✅ Responsive behavior */
+@media (max-width: 600px) {
+    .commission-header {
+        flex-direction: column;
+        align-items: flex-start;
+        height: auto;
+        gap: 8px;
+    }
+
+    .tab-container {
+        width: 100%;
+        height: auto;
+        justify-content: flex-start;
+        margin-left: 0px;
+    }
+
+    .tab-btn {
+        flex: 1;
+        text-align: center;
+        border-radius: 0;
+        border: 1px solid var(--btn-tab-color);
+        height: auto;
+        width:auto !important;
+    }
+}

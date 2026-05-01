@@ -1,0 +1,6 @@
+.ps-notify-alert:hover{opacity:0.9;cursor:pointer;}
+.ps-notify-alert{width:100%;padding:15px;border-radius:5px;margin-top:15px;}
+.ps-notify-alert.success{background:#4CAF50;color: white;}
+.ps-notify-alert.danger{background: #f44336;color: white;}
+span.ps-notify-close{float: right;margin-top: -15px;margin-right: -7px;}
+.ps-notify-cont{position: fixed;top: 0;width: 350px;left: 0;right: 0;margin: auto;z-index: 1051;}

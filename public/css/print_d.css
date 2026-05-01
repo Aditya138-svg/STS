@@ -1,0 +1,16 @@
+@page
+{
+  size:auto; margin:5mm;
+}
+@media print{  
+  table { 
+    page-break-inside:auto;
+  }
+  tr { 
+    page-break-inside:avoid;
+  }
+  #header {
+   background:#000;
+   -webkit-print-color-adjust: exact;   
+  }
+}

@@ -1,0 +1,32 @@
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-scroll-body {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+#itemsTable_wrapper {
+    padding-bottom: 15px;
+}
+#itemsTable_wrapper .dataTables_scrollBody {
+    overflow-x: auto;          /* scrolling allowed */
+    scrollbar-width: none;     /* Firefox */
+    -ms-overflow-style: none;  
+}
+
+#itemsTable_wrapper .dataTables_scrollBody::-webkit-scrollbar {
+    height: 0;               
+}
+.search_bar {
+    margin-top:10px;
+    display:flex ; 
+    margin-right:15px;
+}
+.search_bar label {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 120px;
+}

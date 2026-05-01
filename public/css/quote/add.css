@@ -1,0 +1,37 @@
+
+.drop-zone {
+    border: 2px dashed #007bff;
+    border-radius: 5px;
+    padding: 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.drop-zone.dragover {
+    background-color: #e9ecef;
+}
+
+.quote-image-upload .drop-zone p {
+    margin: 0;
+    color: #6c757d;
+    margin-bottom: 10px;
+
+}
+
+.quote-image-upload .drop-zone .file-input{
+	margin: auto;
+    max-width: 200px;
+}
+.file-input {
+    display: none; /* Hide the default file input */
+	
+}
+
+.quote-image-upload {
+    margin-bottom: 15px;
+	max-width:593px;
+	margin: 0px auto;
+}
+

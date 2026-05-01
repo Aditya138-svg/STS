@@ -1,0 +1,36 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;    
+}
+.float_left{
+	float:left !important;
+}
+.dest_div{
+	width:55%  !important;
+}
+.quote_heading{
+   text-align: center;
+   margin-bottom: 2%;
+   margin-top:3%;
+   font-weight: bolder;
+   background: #e3e7ed !important;
+   padding: 1%;
+   border: 1px solid lightgrey;
+   border-radius: 5px;
+}
+.hide_class{
+	display:none;
+}
+
+.item_table{
+	margin-left: 1%;
+	margin-right:1%;
+}
+.no-padding{
+	width:85%;
+	overflow: visible;
+}
+.help-block{
+	color:red !important;
+}

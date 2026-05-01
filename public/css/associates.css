@@ -1,0 +1,110 @@
+/* Custom styles to mimic the ON/OFF toggle switch from the reference image */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    /* Adjusted width for a more compact look */
+    height: 25px;
+    /* Adjusted height */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 25px;
+    /* Rounded corners */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 19px;
+    /* Adjusted size */
+    width: 19px;
+    /* Adjusted size */
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    /* Mimic raised button */
+}
+
+input:checked+.slider {
+    background-color: #4CAF50;
+    /* Green for ON */
+}
+
+input:focus+.slider {
+    box-shadow: 0 0 1px #4CAF50;
+}
+
+input:checked+.slider:before {
+    -webkit-transform: translateX(25px);
+    /* Move 25px to the right */
+    -ms-transform: translateX(25px);
+    transform: translateX(25px);
+}
+
+/* Disable styling for ID=1 checkbox */
+.primary-checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Responsive Table */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Basic Table Styling */
+.box-body table th {
+    white-space: nowrap;
+    cursor: pointer;
+    /* To indicate sortable headers */
+}
+
+.actions-col {
+    min-width: 100px;
+}
+
+/* Ensure text alignment is clean */
+.box-body table th {
+    white-space: nowrap;
+    cursor: pointer;
+    padding-right: 25px;
+    /* Add space for the icon */
+}
+
+/* Show not-allowed cursor when hovering over disabled default switches */
+.default-switch:disabled+.slider {
+    cursor: not-allowed;
+    opacity: 0.6;
+    /* Optional: make it look visually disabled */
+}
+
+/* Removes the pseudo-element icons that might be added by your theme (e.g., Bootstrap 3/4 DataTables integration) */
+table.dataTable thead th.sorting:after,
+table.dataTable thead th.sorting_asc:after,
+table.dataTable thead th.sorting_desc:after,
+table.dataTable thead th.sorting:before,
+table.dataTable thead th.sorting_asc:before,
+table.dataTable thead th.sorting_desc:before {
+    display: none !important;
+    content: none !important;
+}

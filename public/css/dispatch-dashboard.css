@@ -1,0 +1,592 @@
+/* Dispatch Dashboard Styles */
+
+/* Cursor Styles */
+.end-day-deliveries,
+.searched_order_list_div:hover,
+.panel-title,
+.marker_selected_truck_class {
+    cursor: pointer;
+}
+
+/* Layout & Spacing */
+.collapse {
+    min-height: 50px;
+}
+
+.hr_polyline_modal,
+.p_polyline_modal {
+    margin: 0 !important;
+}
+
+.p_polyline_modal {
+    padding: 0 5px !important;
+}
+
+.remove_ended {
+    font-size: 18px;
+}
+
+/* Icons & Alerts */
+.fa-exclamation-triangle:hover {
+    color: rgb(60 141 188);
+}
+
+/* List Styles */
+.list-group-itemz {
+    list-style: none;
+    border: 1px solid #ddd;
+}
+
+/* Text & Typography */
+.toa-order-address {
+    padding-right: 85px;
+    word-wrap: break-word;
+}
+
+/* Date Picker */
+.datepicker {
+    z-index: 9999 !important;
+}
+
+/* TOA Styles */
+.toa-sort-orders small {
+    cursor: pointer;
+    background-color: #d9edf7 !important;
+}
+
+/* Hover Effects */
+.short-dist:hover,
+.rev-route:hover,
+.bs-btns:hover {
+    background: #ffc107;
+    color: #000;
+}
+
+/* Google Maps */
+.gm-ui-hover-effect {
+    border: 0 !important;
+}
+
+/* Button Styles */
+.bs-btns {
+    padding: 3px 5px;
+    background: #ECF0F5;
+    color: #9B9B9B;
+    border-radius: 30px;
+    text-align: center;
+    font-size: 80%;
+    width: 95%;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+/* Alert Styles */
+.show-alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #faebcc;
+    border-radius: 4px;
+}
+
+/* Status Colors */
+.offline-status {
+    color: #ff0500;
+}
+
+.online-status {
+    color: #23e926;
+}
+
+/* Map Markers */
+.showMapMarkers {
+    display: none;
+}
+
+/* ETA Text Styles */
+.eta-text,
+.late-text {
+    color: #ff5454;
+    font-weight: 500;
+}
+
+.eta-text-arr {
+    color: #00bf7f;
+    font-weight: 500;
+}
+
+/* Badge Styles */
+.truck-orders-addresses .badge b {
+    font-weight: 500;
+    font-size: 11px;
+}
+
+/* Form Error */
+.formError {
+    left: 0 !important;
+}
+
+/* Panel Actions */
+.panel-heading.btn-actions li {
+    padding: 0 2px;
+}
+
+/* Truck Selection Styles */
+.marker_selected_truck_class {
+    display: flex;
+    margin-left: 10px;
+    border: 1px solid black;
+    border-radius: 5px;
+    min-width: fit-content;
+    padding: 5px 10px;
+    align-items: center;
+}
+
+/* Truck Selection List */
+.truck_selection_list_ul {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+    align-items: center;
+    padding: 0px 10px 5px 0px;
+    margin: 10px 0px;
+}
+
+/* Slim vertical scrollbar */
+.truck_selection_list_ul::-webkit-scrollbar {
+    width: 5px;  /* Very slim vertical scrollbar */
+    height: 5px; /* For horizontal scrollbar if needed */
+}
+
+.truck_selection_list_ul::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);  /* Adjust the thumb color */
+    border-radius: 10px;
+}
+
+.truck_selection_list_ul::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);  /* Adjust the track color */
+    border-radius: 10px;
+}
+
+.marker_truck_selected {
+    background: gainsboro;
+}
+
+/* Map Container */
+#map {
+    height: 450;
+    min-height: 400px;
+    width: 600;
+    margin: 10px;
+}
+
+/* Dashboard Stats */
+.dis-dashboard-stats {
+    margin-bottom: 20px;
+}
+
+.stats-badge {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.stats-badge .inner {
+    padding: 0;
+}
+
+.stats-badge a,
+.stats-badge p {
+    color: #000;
+    text-decoration: none;
+}
+
+.stats-badge i {
+    margin-right: 5px;
+}
+
+.orders_date_col {
+    margin-right: 15px;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.save_trucks_and_orders {
+    margin-left: 10px;
+}
+
+/* Truck List */
+.trucks--listing {
+    margin-top: 20px;
+    padding: 15px;
+}
+
+#searchTruck {
+    margin-bottom: 15px;
+}
+
+/* Modal Styles */
+.modal-header.alert-info {
+    color: #31708f;
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+}
+
+.modal-header.alert-warning {
+    color: #8a6d3b;
+    background-color: #fcf8e3;
+    border-color: #faebcc;
+}
+
+/* Additional Modal Styles */
+.briefing-sheet-modal {
+    padding-right: 17px;
+}
+
+/* Form Styles */
+.textarea-vertical {
+    resize: vertical;
+}
+
+/* List Styles */
+.unfinished_orders_list_for_end {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.padded-content {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+/* End Route Deliveries Form */
+#finish_deliveies {
+    height: 50px;
+}
+
+.server_err_msg {
+    color: red;
+}
+
+#reason_codes_id_finish_deliveies {
+    margin-top: 10px;
+}
+
+/* View Order Modal */
+.schedule-label {
+    font-weight: 100;
+}
+
+#schedule_head {
+    margin-bottom: 15px;
+}
+
+#schedule_head h4 {
+    margin: 10px 0;
+}
+
+/* Hidden Elements */
+.d-none,
+.hide_class {
+    display: none !important;
+}
+
+.order_number_end_day,
+.order_type_end_day,
+.briefing-sheet-modal,
+.view_order,
+.view_route_logs,
+.edit_order,
+.No-orders-div,
+.No-t-orders-div,
+.No-trucks-div,
+#preview-template,
+#assign_order_button,
+#assign_selected_order_button,
+#truck_details_assign,
+#select_orders_button,
+#truck_details_move,
+#save_single_trucks_form,
+#move_order_button {
+    display: none;
+}
+
+/* Briefing Sheet Modal */
+.briefing-sheet-notes ul {
+    margin-left: 25px;
+}
+
+/* Log History */
+#log_div {
+    max-height: 295px;
+    overflow: auto;
+}
+
+/* Text Styles */
+.log-history-title {
+    font-weight: bolder;
+    font-size: 16px;
+}
+
+/* Status Badge */
+.status-badge {
+    margin-left: 10px;
+}
+
+/* Auto Route Styles */
+.auto-route-container {
+    max-height: 200px;
+    overflow-y: auto;
+    border-bottom: 1px solid #eee;
+}
+
+/* Success Message */
+.success-message {
+    color: green;
+}
+
+/* Error Message */
+.error-message {
+    color: red;
+}
+
+/* Map Controls */
+.map-control {
+    background-color: #fed452;
+    border: 1px solid black;
+}
+
+/* Polyline */
+.route-polyline {
+    geodesic: true;
+    stroke-opacity: 0.7;
+    stroke-weight: 6;
+}
+
+/* Move Order Modal Styles */
+#truck_details_move .card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 15px;
+}
+
+#truck_details_move .card-header {
+    padding: 15px;
+    background-color: #f5f5f5;
+}
+
+#truck_details_move .drop-btn {
+    width: 100%;
+    text-align: left;
+    padding: 0;
+}
+
+/* Buttons */
+.btn-info.btn-sm {
+    padding: 5px;
+}
+
+.btn-info.btn-sm + .btn-info.btn-sm {
+    margin-left: 10px;
+}
+
+/* Flash Modal */
+.flash-modal-success {
+    color: green;
+}
+
+.flash-modal-error {
+    color: red;
+}
+
+/* Auto Route Styles */
+#auto_route_stop_no {
+    float: right;
+}
+
+/* Progress Bar */
+.progress-bar-success {
+    background-color: #5cb85c;
+}
+
+/* File Upload */
+.fileupload-buttonbar {
+    margin-bottom: 15px;
+}
+
+/* Truck Details */
+.truck-img {
+    max-width: 24px;
+    margin-right: 5px;
+}
+
+.custom_panel{
+    padding: 10px;
+}
+
+#warningMsg{
+    color:red;
+    display: none;
+}
+
+.unassign_modal{
+    background: #00c0ef;
+    text-align:center
+}
+
+#myModalLabel{
+    color:white;
+}
+
+.label_scan{
+    background: #6b6b64;
+    text-align: center;
+    color: white;
+    font-weight: 400;
+    padding:5px 0px;
+}
+.label_heighlight{
+    font-weight:600;
+    color:white;
+}
+
+.truck-number-assign {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Volume and Weight */
+.volume-head {
+    margin-right: 15px;
+}
+
+.weight-head {
+    margin-left: 15px;
+}
+
+/* Order Selection */
+.order-selection-div {
+    max-height: 200px !important;
+    overflow-x: auto;
+}
+
+/* Alert Styles */
+.unselect_alert {
+    background-color: #e3240d66 !important;
+    color: #b10d0d !important;
+    margin-top: 20px;
+    display: none;
+}
+
+/* Calendar Icon */
+.orders_date_col i {
+    margin-right: 5px;
+}
+
+/* Utilities */
+.ml-1 {
+    margin-left: 1rem;
+}
+
+.mt-2 {
+    margin-top: 2rem;
+}
+
+#truck-options-assign {
+    display: block;
+    margin: 0 auto; 
+    width: 50%;
+}
+
+.select-orders-content {
+    display: none;
+    margin-top: 10px;
+}
+
+#truck-options-move {
+    width: 100%;
+}
+
+#note_delivery_polyline{
+    display: none;
+    margin: 0px !important;
+}
+
+#polyline_selected_orders{
+    max-height: 450px;
+    overflow: auto;
+}
+
+#prpi_main_div {
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+#truck_specification_modal {
+    display:none !important;
+}
+
+.fa-map-marker {
+    background: transparent;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Select All Label */
+.select_all_label {
+    display: none;
+    margin: 0;
+    font-weight: 100;
+    padding-left: 12px;
+    font-size: 13px;
+}
+
+.w-0-percent {
+    width:0%;
+}
+
+.m-b-20 {
+    margin-bottom: 20px;
+}
+
+.schedule-date-label {
+    font-weight: 100;
+    width: 100%;
+}
+
+/* Assign Driver/Helper Modal */
+.unassigned_drivers,
+.unassigned_helpers {
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Assign Order Modal */
+.mt-15 {
+    margin-top: 15px;
+}
+
+.f-size-18 {
+    font-size: 18px;
+}
+
+.capacity-alert {
+    margin-top: 15px;
+    padding: 27px;
+}
+
+.location-header {
+    border: 1px solid #c3c3c3;
+    padding: 10px;
+}
+
+.order-selection-div {
+    max-height: 200px !important;
+    overflow-x: auto;
+}
