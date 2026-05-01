@@ -191,51 +191,62 @@ class QuotesController extends Controller
 
     public function verifyZip(string $zip)
     {
-        if (!Schema::hasTable('quotes')) {
+        $zipInfo = DB::table('zipcodes_management')
+            ->where('zipcode', $zip)
+            ->first();
+
+        if (!$zipInfo) {
             return response()->json(['found' => false]);
         }
 
-        // Check origin zip
-        $origin = DB::table('quotes')
-            ->where('origin_zip', $zip)
-            ->whereNotNull('origin_city')
-            ->where('origin_city', '!=', '')
-            ->orderBy('id', 'desc')
-            ->first();
+        // We found the zip in management, so we service it.
+        $result = [
+            'found' => true,
+            'city' => (string) ($zipInfo->city ?? ''),
+            'state' => (string) ($zipInfo->state ?? ''),
+            'addressline1' => '',
+            'company_name' => '',
+            'contact_phone' => '',
+            'contact_email' => '',
+        ];
 
-        if ($origin) {
-            return response()->json([
-                'found' => true,
-                'city' => $origin->origin_city,
-                'state' => $origin->origin_state,
-                'addressline1' => $origin->origin_addressline1,
-                'company_name' => $origin->origin_company_name,
-                'contact_phone' => $origin->origin_contact_phone,
-                'contact_email' => $origin->origin_contact_email,
-            ]);
+        // Now try to pre-fill address details from previous quotes (if any)
+        if (Schema::hasTable('quotes')) {
+            $prev = DB::table('quotes')
+                ->where(function($query) use ($zip) {
+                    $query->where('origin_zip', $zip)
+                          ->orWhere('dest_zip', $zip);
+                })
+                ->where(function($query) {
+                    $query->whereNotNull('origin_addressline1')
+                          ->where('origin_addressline1', '!=', '')
+                          ->orWhereNotNull('dest_addressline1')
+                          ->where('dest_addressline1', '!=', '');
+                })
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($prev) {
+                // Determine if it was origin or dest to get details
+                if ($prev->origin_zip === $zip && !empty($prev->origin_addressline1)) {
+                    $result['addressline1'] = (string) ($prev->origin_addressline1 ?? '');
+                    $result['company_name'] = (string) ($prev->origin_company_name ?? '');
+                    $result['contact_phone'] = (string) ($prev->origin_contact_phone ?? '');
+                    $result['contact_email'] = (string) ($prev->origin_contact_email ?? '');
+                    if (!empty($prev->origin_city)) $result['city'] = $prev->origin_city;
+                    if (!empty($prev->origin_state)) $result['state'] = $prev->origin_state;
+                } else if ($prev->dest_zip === $zip && !empty($prev->dest_addressline1)) {
+                    $result['addressline1'] = (string) ($prev->dest_addressline1 ?? '');
+                    $result['company_name'] = (string) ($prev->dest_company_name ?? '');
+                    $result['contact_phone'] = (string) ($prev->dest_contact_phone ?? '');
+                    $result['contact_email'] = (string) ($prev->dest_contact_email ?? '');
+                    if (!empty($prev->dest_city)) $result['city'] = $prev->dest_city;
+                    if (!empty($prev->dest_state)) $result['state'] = $prev->dest_state;
+                }
+            }
         }
 
-        // Check dest zip
-        $dest = DB::table('quotes')
-            ->where('dest_zip', $zip)
-            ->whereNotNull('dest_city')
-            ->where('dest_city', '!=', '')
-            ->orderBy('id', 'desc')
-            ->first();
-
-        if ($dest) {
-            return response()->json([
-                'found' => true,
-                'city' => $dest->dest_city,
-                'state' => $dest->dest_state,
-                'addressline1' => $dest->dest_addressline1,
-                'company_name' => $dest->dest_company_name,
-                'contact_phone' => $dest->dest_contact_phone,
-                'contact_email' => $dest->dest_contact_email,
-            ]);
-        }
-
-        return response()->json(['found' => false]);
+        return response()->json($result);
     }
 
     private function renderQuotesPage(

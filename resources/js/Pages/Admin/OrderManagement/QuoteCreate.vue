@@ -2,6 +2,7 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import axios from 'axios'
+import { useAdminAssets } from '@/Composables/Admin'
 
 const page = usePage()
 const createPage = computed(() => page.props.quoteCreate ?? {})
@@ -145,22 +146,26 @@ const applyOrderType = () => {
 }
 
 const zipStatus = ref({
-    origin: { status: null, message: '' },
-    dest: { status: null, message: '' }
+    origin: { status: null, message: '', loading: false },
+    dest: { status: null, message: '', loading: false }
 });
 
 const verifyZip = async (type) => {
     const zip = form[`${type}_zip`];
     if (!zip) return;
 
+    const { rootUrl } = useAdminAssets();
+    zipStatus.value[type].loading = true;
     try {
-        const response = await axios.get(`/admin/order-management/quotes/verify-zip/${zip}`);
+        const response = await axios.get(`${rootUrl.value}/admin/order-management/quotes/verify-zip/${zip}`);
         const data = response.data;
+        
+        zipStatus.value[type].loading = false;
         
         if (data.found) {
             zipStatus.value[type] = {
                 status: 'success',
-                message: `${data.city}, ${data.state}`
+                message: `${data.city}, ${data.state}${data.addressline1 ? ' - ' + data.addressline1 : ''}`
             };
             form[`${type}_city`] = data.city || '';
             form[`${type}_state`] = data.state || '';
@@ -181,6 +186,7 @@ const verifyZip = async (type) => {
             form[`${type}_contact_email`] = '';
         }
     } catch (error) {
+        zipStatus.value[type].loading = false;
         console.error('Error verifying zip:', error);
     }
 };
@@ -298,7 +304,9 @@ const verifyZip = async (type) => {
                                         <div class="col-sm-8">
                                             <div class="input-group">
                                                 <input v-model="form.origin_zip" name="origin_zip" type="text" maxlength="5" class="form-control" placeholder="Enter Origin Zipcode" required>
-                                                <div class="input-group-btn"><button type="button" class="btn btn-info" @click="verifyZip('origin')">Verify</button></div>
+                                                <div class="input-group-btn"><button type="button" class="btn btn-info" @click="verifyZip('origin')" :disabled="zipStatus.origin.loading">
+                                                    {{ zipStatus.origin.loading ? 'Verifying...' : 'Verify' }}
+                                                </button></div>
                                             </div>
                                             <div v-if="zipStatus.origin.status === 'error'" class="text-danger" style="margin-top: 5px;">
                                                 <small>{{ zipStatus.origin.message }}</small>
@@ -334,7 +342,9 @@ const verifyZip = async (type) => {
                                         <div class="col-sm-8">
                                             <div class="input-group">
                                                 <input v-model="form.dest_zip" name="dest_zip" type="text" maxlength="5" class="form-control" placeholder="Enter Destination Zipcode" required>
-                                                <div class="input-group-btn"><button type="button" class="btn btn-info" @click="verifyZip('dest')">Verify</button></div>
+                                                <div class="input-group-btn"><button type="button" class="btn btn-info" @click="verifyZip('dest')" :disabled="zipStatus.dest.loading">
+                                                    {{ zipStatus.dest.loading ? 'Verifying...' : 'Verify' }}
+                                                </button></div>
                                             </div>
                                             <div v-if="zipStatus.dest.status === 'error'" class="text-danger" style="margin-top: 5px;">
                                                 <small>{{ zipStatus.dest.message }}</small>

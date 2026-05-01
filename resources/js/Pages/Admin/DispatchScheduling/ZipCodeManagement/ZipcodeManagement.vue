@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { Head, useForm, router, usePage } from '@inertiajs/vue3'
-import AdminLayout from '@/Layouts/AdminLayout.vue'
 
 const props = defineProps({
     zipcodes: Object,
@@ -129,118 +128,124 @@ const formatServiceDays = (zip) => {
 </script>
 
 <template>
-    <AdminLayout>
-        <Head title="Zipcode Management" />
+    <Head title="Zipcode Management" />
 
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="box">
-                    <div class="box-header">
-                        <div class="btn-toolbar pull-right">
-                            <div class="btn-group">
-                                <button @click="openAddZipcode" class="btn btn-primary" style="margin-right: 10px;">
-                                    <span class="glyphicon glyphicon-plus"></span> New Zipcode
-                                </button>
-                                <button @click="openAddLocationZipcodes" class="btn btn-warning">
-                                    <span class="glyphicon glyphicon-plus"></span> New Zipcode(s) to Location
-                                </button>
+    <div class="container-fluid dash">
+        <div class="dashboarddiv">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <div class="btn-toolbar pull-right">
+                                <div class="btn-group">
+                                    <button @click="openAddZipcode" class="btn btn-primary" style="margin-right: 10px;">
+                                        <span class="glyphicon glyphicon-plus"></span> New Zipcode
+                                    </button>
+                                    <button @click="openAddLocationZipcodes" class="btn btn-warning">
+                                        <span class="glyphicon glyphicon-plus"></span> New Zipcode(s) to Location
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                        <h3 class="box-title">Zipcode Management</h3>
-                    </div>
-
-                    <div class="box-body">
-                        <!-- Flash Messages -->
-                        <div v-if="page.props.flash?.success" class="alert alert-success">
-                            {{ page.props.flash.success }}
-                        </div>
-                        <div v-if="page.props.flash?.error" class="alert alert-danger">
-                            {{ page.props.flash.error }}
+                            <h3 class="box-title">Zipcode Management</h3>
                         </div>
 
-                        <!-- Filters -->
-                        <div class="row" style="margin-bottom: 20px;">
-                            <div class="col-md-3">
-                                <label>Search:</label>
-                                <input v-model="filterSearch" type="text" class="form-control" placeholder="Search zipcodes..." @keyup.enter="applyFilters">
+                        <div class="box-body">
+                            <!-- Flash Messages -->
+                            <div v-if="page.props.flash?.success" class="alert alert-success">
+                                {{ page.props.flash.success }}
                             </div>
-                            <div class="col-md-3">
-                                <label>Area:</label>
-                                <select v-model="filterArea" class="form-control" @change="applyFilters">
-                                    <option value="">- All Areas -</option>
-                                    <option v-for="area in areas" :key="area.zipcode" :value="area.zipcode">
-                                        {{ area.terminal_name || area.city }} ({{ area.short_code }})
-                                    </option>
-                                </select>
+                            <div v-if="page.props.flash?.error" class="alert alert-danger">
+                                {{ page.props.flash.error }}
                             </div>
-                            <div class="col-md-3">
-                                <label>Service Day:</label>
-                                <select v-model="filterDay" class="form-control" @change="applyFilters">
-                                    <option value="">- All Days -</option>
-                                    <option value="monday">Monday</option>
-                                    <option value="tuesday">Tuesday</option>
-                                    <option value="wednesday">Wednesday</option>
-                                    <option value="thursday">Thursday</option>
-                                    <option value="friday">Friday</option>
-                                    <option value="saturday">Saturday</option>
-                                    <option value="sunday">Sunday</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label>&nbsp;</label>
-                                <button @click="applyFilters" class="btn btn-success form-control">Apply Filters</button>
-                            </div>
-                        </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 40px;"><input type="checkbox" @change="toggleAll"></th>
-                                        <th>Zipcode</th>
-                                        <th>Area</th>
-                                        <th>Location</th>
-                                        <th>Service Days</th>
-                                        <th>Created On</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="zip in zipcodes.data" :key="zip.z_id">
-                                        <td><input type="checkbox" :value="zip.z_id" v-model="selectedIds"></td>
-                                        <td>{{ zip.zipcode }}</td>
-                                        <td>{{ zip.zipcode_associate_with_formatted || zip.zipcode_associate_with }}</td>
-                                        <td>{{ zip.loc_name }}</td>
-                                        <td>{{ formatServiceDays(zip) }}</td>
-                                        <td>{{ zip.created_at }}</td>
-                                        <td>
-                                            <button @click="openEditZipcode(zip)" class="btn btn-sm btn-info" style="margin-right: 5px;">Edit</button>
-                                            <button @click="deleteZipcode(zip.z_id)" class="btn btn-sm btn-danger">Delete</button>
-                                        </td>
-                                    </tr>
-                                    <tr v-if="zipcodes.data.length === 0">
-                                        <td colspan="7" class="text-center">No zipcodes found.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                            <!-- Filters -->
+                            <div class="row" style="margin-bottom: 20px;">
+                                <div class="col-md-3">
+                                    <label>Search:</label>
+                                    <input v-model="filterSearch" type="text" class="form-control" placeholder="Search zipcodes..." @keyup.enter="applyFilters">
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Area:</label>
+                                    <select v-model="filterArea" class="form-control" @change="applyFilters">
+                                        <option value="">- All Areas -</option>
+                                        <option v-for="area in areas" :key="area.zipcode" :value="area.zipcode">
+                                            {{ area.terminal_name || area.city }} ({{ area.short_code }})
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>Service Day:</label>
+                                    <select v-model="filterDay" class="form-control" @change="applyFilters">
+                                        <option value="">- All Days -</option>
+                                        <option value="monday">Monday</option>
+                                        <option value="tuesday">Tuesday</option>
+                                        <option value="wednesday">Wednesday</option>
+                                        <option value="thursday">Thursday</option>
+                                        <option value="friday">Friday</option>
+                                        <option value="saturday">Saturday</option>
+                                        <option value="sunday">Sunday</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>&nbsp;</label>
+                                    <button @click="applyFilters" class="btn btn-success form-control">Apply Filters</button>
+                                </div>
+                            </div>
 
-                        <!-- Bulk Delete -->
-                        <div style="margin-top: 15px;">
-                            <button @click="deleteSelected" class="btn btn-danger">Delete Selected</button>
-                        </div>
-                        
-                        <!-- Pagination (Simple manual approach for Inertia) -->
-                        <div style="margin-top: 15px;" v-if="zipcodes.total > zipcodes.per_page">
-                            <ul class="pagination">
-                                <li :class="{ disabled: zipcodes.current_page <= 1 }">
-                                    <button class="page-link" @click="router.get(route('dispatch_scheduling.zipcode_management.index'), { page: zipcodes.current_page - 1, ...filters })">Previous</button>
-                                </li>
-                                <li class="disabled"><span class="page-link">Page {{ zipcodes.current_page }}</span></li>
-                                <li :class="{ disabled: zipcodes.data.length < zipcodes.per_page }">
-                                    <button class="page-link" @click="router.get(route('dispatch_scheduling.zipcode_management.index'), { page: zipcodes.current_page + 1, ...filters })">Next</button>
-                                </li>
-                            </ul>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40px;"><input type="checkbox" @change="toggleAll"></th>
+                                            <th>Zipcode</th>
+                                            <th>City</th>
+                                            <th>State</th>
+                                            <th>Area</th>
+                                            <th>Location</th>
+                                            <th>Service Days</th>
+                                            <th>Created On</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="zip in zipcodes.data" :key="zip.z_id">
+                                            <td><input type="checkbox" :value="zip.z_id" v-model="selectedIds"></td>
+                                            <td>{{ zip.zipcode }}</td>
+                                            <td>{{ zip.city }}</td>
+                                            <td>{{ zip.state }}</td>
+                                            <td>{{ zip.zipcode_associate_with_formatted || zip.zipcode_associate_with }}</td>
+                                            <td>{{ zip.loc_name }}</td>
+                                            <td>{{ formatServiceDays(zip) }}</td>
+                                            <td>{{ zip.created_at }}</td>
+                                            <td>
+                                                <button @click="openEditZipcode(zip)" class="btn btn-sm btn-info" style="margin-right: 5px;">Edit</button>
+                                                <button @click="deleteZipcode(zip.z_id)" class="btn btn-sm btn-danger">Delete</button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="zipcodes.data.length === 0">
+                                            <td colspan="7" class="text-center">No zipcodes found.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Bulk Delete -->
+                            <div style="margin-top: 15px;">
+                                <button @click="deleteSelected" class="btn btn-danger">Delete Selected</button>
+                            </div>
+                            
+                            <!-- Pagination (Simple manual approach for Inertia) -->
+                            <div style="margin-top: 15px;" v-if="zipcodes.total > zipcodes.per_page">
+                                <ul class="pagination">
+                                    <li :class="{ disabled: zipcodes.current_page <= 1 }">
+                                        <button class="page-link" @click="router.get(route('dispatch_scheduling.zipcode_management.index'), { page: zipcodes.current_page - 1, ...filters })">Previous</button>
+                                    </li>
+                                    <li class="disabled"><span class="page-link">Page {{ zipcodes.current_page }}</span></li>
+                                    <li :class="{ disabled: zipcodes.data.length < zipcodes.per_page }">
+                                        <button class="page-link" @click="router.get(route('dispatch_scheduling.zipcode_management.index'), { page: zipcodes.current_page + 1, ...filters })">Next</button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -337,7 +342,7 @@ const formatServiceDays = (zip) => {
                 </div>
             </div>
         </div>
-    </AdminLayout>
+    </div>
 </template>
 
 <style scoped>
