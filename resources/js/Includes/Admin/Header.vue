@@ -3,10 +3,12 @@ import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
 import { useAdminAssets } from '@/Composables/Admin'
 import { useAdminSidebarMini } from '@/Composables/Admin/useAdminSidebarMini'
+import { useAdminMobileSidebar } from '@/Composables/Admin/useAdminMobileSidebar'
 
 const page = usePage()
 const { sidebarMini, toggleSidebarMini } = useAdminSidebarMini()
-const { href, route } = useAdminAssets()
+const { mobileSidebarOpen, toggleMobileSidebar } = useAdminMobileSidebar()
+const { href, route, asset } = useAdminAssets()
 
 const userName = computed(() => page.props.auth?.user?.name ?? 'Admin')
 
@@ -18,10 +20,16 @@ const avatarUrl = computed(() => {
     if (/^https?:\/\//i.test(pic)) {
         return pic
     }
-    const base = page.props.sts?.s3StorageUrl ?? ''
-    const path = pic.replace(/^\//, '')
-    return base ? `${base}${path}` : null
+    return asset(`storage/${pic.replace(/^\//, '')}`)
 })
+
+const handleMenuToggle = () => {
+    if (window.innerWidth <= 991) {
+        toggleMobileSidebar()
+    } else {
+        toggleSidebarMini()
+    }
+}
 </script>
 
 <template>
@@ -36,7 +44,7 @@ const avatarUrl = computed(() => {
                 class="admin-header-menu-btn"
                 aria-label="Toggle sidebar"
                 :aria-expanded="!sidebarMini"
-                @click="toggleSidebarMini"
+                @click="handleMenuToggle"
             >
                 <i class="fa-solid fa-bars admin-header-icon" aria-hidden="true" />
             </button>
@@ -54,30 +62,39 @@ const avatarUrl = computed(() => {
                 <option>-All Locations-</option>
             </select>
 
-            <div class="admin-profile-cluster">
+            <Link :href="href('admin/my-settings/my-profile')" class="admin-profile-cluster">
                 <div class="admin-avatar" aria-hidden="true">
                     <img v-if="avatarUrl" class="admin-avatar-img" :src="avatarUrl" alt="">
                     <i v-else class="fa-solid fa-user admin-avatar-fallback" />
                 </div>
                 <span class="admin-profile-name">{{ userName }}</span>
-                <Link :href="route('logout')" method="post" as="button" class="admin-logout-btn" aria-label="Log out">
-                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true" />
-                </Link>
-            </div>
+            </Link>
+
+            <Link :href="href('admin/my-settings/my-profile')" class="admin-profile-link-btn" aria-label="My Profile">
+                <i class="fa-solid fa-user-gear" aria-hidden="true" />
+            </Link>
+            <Link :href="route('logout')" method="post" as="button" class="admin-logout-btn" aria-label="Log out">
+                <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true" />
+            </Link>
         </div>
     </header>
 </template>
 
 <style scoped>
 .admin-header {
-    min-height: 50px;
+    min-height: 60px;
     background: #7a918d;
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px;
-    border-bottom: 1px solid #697d79;
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .admin-header-left,
@@ -88,15 +105,23 @@ const avatarUrl = computed(() => {
 }
 
 .admin-header-menu-btn {
-    background: transparent;
-    border: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff;
-    padding: 6px;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.admin-header-menu-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
 }
 
 .admin-brand {
@@ -124,10 +149,20 @@ const avatarUrl = computed(() => {
 .admin-top-link {
     color: #fff;
     text-decoration: none;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 500;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.5rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+}
+
+.admin-top-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    opacity: 1;
 }
 
 .icon-only {
@@ -138,14 +173,27 @@ const avatarUrl = computed(() => {
 }
 
 .admin-location-select {
-    height: 30px;
-    border: 1px solid #cfd8d7;
+    height: 34px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    min-width: 160px;
+    padding: 0 12px;
+    border-radius: 6px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.admin-location-select:focus {
     background: #fff;
     color: #333;
-    font-size: 12px;
-    min-width: 148px;
-    padding: 2px 8px;
-    border-radius: 2px;
+    border-color: #fff;
+}
+
+.admin-location-select option {
+    color: #333;
 }
 
 .admin-profile-cluster {
@@ -153,18 +201,29 @@ const avatarUrl = computed(() => {
     align-items: center;
     gap: 10px;
     margin-left: 4px;
+    text-decoration: none;
+    color: inherit;
+    padding: 4px 8px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.admin-profile-cluster:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .admin-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     display: grid;
     place-items: center;
     overflow: hidden;
     flex-shrink: 0;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .admin-avatar-img {
@@ -174,12 +233,12 @@ const avatarUrl = computed(() => {
 }
 
 .admin-avatar-fallback {
-    font-size: 14px;
-    opacity: 0.95;
+    font-size: 16px;
+    opacity: 0.9;
 }
 
 .admin-profile-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     white-space: nowrap;
     max-width: 160px;
@@ -187,22 +246,27 @@ const avatarUrl = computed(() => {
     text-overflow: ellipsis;
 }
 
-.admin-logout-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    background: rgba(255, 255, 255, 0.12);
+.admin-logout-btn,
+.admin-profile-link-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
     color: #fff;
     display: inline-grid;
     place-items: center;
     cursor: pointer;
     padding: 0;
     flex-shrink: 0;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
-.admin-logout-btn:hover {
-    background: rgba(255, 255, 255, 0.22);
+.admin-logout-btn:hover,
+.admin-profile-link-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 .admin-logout-btn i {

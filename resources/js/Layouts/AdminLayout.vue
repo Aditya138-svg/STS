@@ -6,15 +6,20 @@ import AdminSidebar from '@/Includes/Admin/Sidebar.vue'
 import AdminFooter from '@/Includes/Admin/Footer.vue'
 import { useAdminAssets } from '@/Composables/Admin'
 import { useAdminSidebarMini } from '@/Composables/Admin/useAdminSidebarMini'
+import { useAdminMobileSidebar } from '@/Composables/Admin/useAdminMobileSidebar'
+import '@/../../resources/css/admin-common.css'
 
 const page = usePage()
 const { sidebarMini } = useAdminSidebarMini()
+const { mobileSidebarOpen, closeMobileSidebar } = useAdminMobileSidebar()
 const { asset } = useAdminAssets()
 
 const isAdminDashboard = computed(() => {
     const path = (page.url || '').split('?')[0]
     return /\/admin\/dashboard\/?$/.test(path)
 })
+
+const isMobile = computed(() => window.innerWidth <= 991)
 
 const ensureStylesheet = (id, path) => {
     if (document.getElementById(id)) {
@@ -40,7 +45,7 @@ onMounted(() => {
     <div class="admin-shell" :class="{ 'admin-shell--sidebar-mini': sidebarMini }">
         <AdminHeader />
         <div class="admin-main">
-            <AdminSidebar />
+            <AdminSidebar v-show="!isMobile" />
             <div class="admin-right">
                 <div v-if="isAdminDashboard" class="admin-page-toolbar">
                     <select class="admin-dashboard-select" aria-label="Dashboard layout">
@@ -60,6 +65,12 @@ onMounted(() => {
                     <slot />
                 </main>
                 <AdminFooter />
+            </div>
+        </div>
+        <!-- Mobile sidebar overlay -->
+        <div v-if="mobileSidebarOpen" class="admin-mobile-sidebar-overlay" @click="closeMobileSidebar">
+            <div class="admin-mobile-sidebar" @click.stop>
+                <AdminSidebar />
             </div>
         </div>
         <a href="#" class="admin-fab-chat" aria-label="Open chat" @click.prevent>
@@ -197,6 +208,26 @@ onMounted(() => {
 
     .admin-main {
         grid-template-columns: 1fr;
+    }
+
+    .admin-mobile-sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+    }
+
+    .admin-mobile-sidebar {
+        width: 280px;
+        max-width: 80vw;
+        height: 100vh;
+        background: #fff;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
     }
 
     .admin-fab-chat {

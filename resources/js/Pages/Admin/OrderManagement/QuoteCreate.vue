@@ -9,6 +9,7 @@ const createPage = computed(() => page.props.quoteCreate ?? {})
 const customers = computed(() => createPage.value.customers ?? [])
 const csrfToken = computed(() => createPage.value.csrf_token ?? document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '')
 const errorMessage = computed(() => page.props.flash?.error ?? '')
+const errors = computed(() => page.props.errors ?? {})
 
 const form = reactive({
     referral_source: 'existing_customer',
@@ -66,6 +67,18 @@ const items = ref([
         has_marble_or_stone: false,
     },
 ])
+
+watch(() => createPage.value.quote_data, (quoteData) => {
+    if (createPage.value.is_edit && quoteData) {
+        Object.assign(form, quoteData)
+        if (createPage.value.items && createPage.value.items.length > 0) {
+            items.value = createPage.value.items.map(item => ({
+                ...item,
+                id: item.id || Date.now() + Math.random()
+            }))
+        }
+    }
+}, { immediate: true })
 
 const internetSources = ['google', 'yahoo', 'msn', 'aol', 'ask', 'other']
 
@@ -211,6 +224,12 @@ const verifyZip = async (type) => {
                         <div class="box-body">
                             <div v-if="errorMessage" class="alert alert-danger quote-create-alert">
                                 {{ errorMessage }}
+                            </div>
+
+                            <div v-if="Object.keys(errors).length > 0" class="alert alert-danger quote-create-alert">
+                                <ul style="margin-bottom: 0;">
+                                    <li v-for="(error, field) in errors" :key="field">{{ error }}</li>
+                                </ul>
                             </div>
 
                             <legend>Referral Source</legend>
@@ -481,7 +500,9 @@ const verifyZip = async (type) => {
                                 <i class="fa fa-arrow-left" aria-hidden="true"></i>
                                 Back
                             </Link>
-                            <button type="submit" class="btn btn-primary pull-right">Submit</button>
+                            <button type="submit" class="btn btn-primary pull-right">
+                                {{ createPage.is_edit ? 'Update Quote' : 'Submit' }}
+                            </button>
                         </div>
                     </fieldset>
                 </form>

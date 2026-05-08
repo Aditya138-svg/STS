@@ -173,6 +173,217 @@ class QuotesController extends Controller
             ->with('success', 'Quote created successfully.');
     }
 
+    public function edit(int|string $quote): Response
+    {
+        if (!Schema::hasTable('quotes')) {
+            abort(404);
+        }
+
+        $idCol = $this->firstExistingColumn('quotes', ['id', 'quote_id', 'q_id']) ?? 'id';
+        $row = Quotes::query()
+            ->where($idCol, $quote)
+            ->firstOrFail();
+
+        $items = $this->quoteItemsForForm((int) ($row->{$idCol} ?? 0));
+        $accessories = $this->parseAccessories($this->value($row, ['accessories']));
+
+        $defaultAssociate = Schema::hasTable('associates')
+            ? Associate::query()->where('a_default', 1)->first()
+            : null;
+
+        return Inertia::render('Admin/OrderManagement/QuoteCreate', [
+            'quoteCreate' => [
+                'title' => 'Edit Quote #' . $row->{$idCol},
+                'is_edit' => true,
+                'back_url' => url('/admin/order-management/quotes'),
+                'submit_url' => url('/admin/order-management/quotes/' . $row->{$idCol}),
+                'csrf_token' => csrf_token(),
+                'order_types' => [
+                    ['value' => '1', 'label' => 'Pickup & Deliver'],
+                    ['value' => '2', 'label' => 'Delivery'],
+                    ['value' => '3', 'label' => 'Receive In & Deliver'],
+                ],
+                'referral_sources' => [
+                    ['value' => 'existing_customer', 'label' => 'Existing Customer'],
+                    ['value' => 'magazine', 'label' => 'Magazine'],
+                    ['value' => 'newspaper', 'label' => 'Newspaper'],
+                    ['value' => 'television', 'label' => 'Television'],
+                    ['value' => 'tradeshow', 'label' => 'Tradeshow'],
+                    ['value' => 'recommendation', 'label' => 'Recommendation'],
+                    ['value' => 'internet', 'label' => 'Internet'],
+                    ['value' => 'other', 'label' => 'Other'],
+                ],
+                'customers' => $this->quoteCustomerOptions(),
+                'default_associate' => [
+                    'company_name' => (string) ($defaultAssociate->a_company_name ?? 'FOX'),
+                    'short_code' => (string) ($defaultAssociate->a_short_code ?? 'OOX'),
+                ],
+                'service_levels' => $this->serviceLevelOptions(),
+                'deductibles' => [
+                    ['value' => '0', 'label' => '$0'],
+                    ['value' => '1', 'label' => '$250'],
+                    ['value' => '2', 'label' => '$500'],
+                    ['value' => '3', 'label' => '$1000'],
+                ],
+                'package_types' => [
+                    ['value' => '1', 'label' => 'Blanket Wrap'],
+                    ['value' => '2', 'label' => 'Carton'],
+                ],
+                'quote_data' => [
+                    'referral_source' => $this->stringValue($this->value($row, ['referral_source'])),
+                    'users_id' => (string) ($this->value($row, ['users_id']) ?? ''),
+                    'referral_by' => $this->stringValue($this->value($row, ['referral_by'])),
+                    'company_name' => $this->stringValue($this->value($row, ['company_name'])),
+                    'name' => $this->stringValue($this->value($row, ['name'])),
+                    'phone' => $this->stringValue($this->value($row, ['phone'])),
+                    'email' => $this->stringValue($this->value($row, ['email'])),
+                    'customer_ref' => $this->stringValue($this->value($row, ['customer_ref'])),
+                    'po_number' => $this->stringValue($this->value($row, ['po_number'])),
+                    'order_type' => (string) ($this->value($row, ['order_type']) ?? '1'),
+                    'pay_note' => $this->stringValue($this->value($row, ['pay_note'])),
+                    'origin_zip' => $this->stringValue($this->value($row, ['origin_zip'])),
+                    'origin_is_residence' => (bool) ($this->value($row, ['origin_is_residence']) ?? false),
+                    'origin_company_name' => $this->stringValue($this->value($row, ['origin_company_name'])),
+                    'origin_contact_phone' => $this->stringValue($this->value($row, ['origin_contact_phone'])),
+                    'origin_contact_email' => $this->stringValue($this->value($row, ['origin_contact_email'])),
+                    'origin_addressline1' => $this->stringValue($this->value($row, ['origin_addressline1'])),
+                    'origin_city' => $this->stringValue($this->value($row, ['origin_city'])),
+                    'origin_state' => $this->stringValue($this->value($row, ['origin_state'])),
+                    'dest_zip' => $this->stringValue($this->value($row, ['dest_zip'])),
+                    'dest_is_residence' => (bool) ($this->value($row, ['dest_is_residence']) ?? false),
+                    'dest_company_name' => $this->stringValue($this->value($row, ['dest_company_name'])),
+                    'dest_contact_phone' => $this->stringValue($this->value($row, ['dest_contact_phone'])),
+                    'dest_contact_email' => $this->stringValue($this->value($row, ['dest_contact_email'])),
+                    'dest_addressline1' => $this->stringValue($this->value($row, ['dest_addressline1'])),
+                    'dest_city' => $this->stringValue($this->value($row, ['dest_city'])),
+                    'dest_state' => $this->stringValue($this->value($row, ['dest_state'])),
+                    'service_levels_id' => (string) ($this->value($row, ['service_levels_id']) ?? '1'),
+                    'valuation_coverage' => (string) ($this->value($row, ['valuation_coverage']) ?? ''),
+                    'additional_valuation_declined' => (bool) ($this->value($row, ['additional_valuation_declined']) ?? true),
+                    'deductible' => (string) ($this->value($row, ['deductible']) ?? '0'),
+                    'assembly_req' => $accessories['REQ_ASSEMBLY'] === '1',
+                    'crating_req' => $accessories['REQ_CRATING'] === '1',
+                    'packaging_req' => $accessories['REQ_PACKAGING'] === '1',
+                    'unpackaging_req' => $accessories['REQ_UNPACKAGING'] === '1',
+                    'stair_carry_req' => $accessories['REQ_STAIR_CARRY'] === '1',
+                    'num_of_flights' => (int) $accessories['NUM_OF_FLIGHTS'],
+                    'notes' => $this->stringValue($this->value($row, ['notes'])),
+                    'distance' => $this->stringValue($this->value($row, ['distance', 'distance_miles', 'miles']) ?: '0.00'),
+                ],
+                'items' => $items,
+            ],
+        ]);
+    }
+
+    public function update(Request $request, int|string $quote)
+    {
+        Log::info('Quote update request (raw)', [
+            'quote_id' => $quote,
+            'all_data' => $request->all(),
+        ]);
+
+        if (!Schema::hasTable('quotes')) {
+            return redirect()
+                ->back()
+                ->with('error', 'Quotes table was not found.');
+        }
+
+        $idCol = $this->firstExistingColumn('quotes', ['id', 'quote_id', 'q_id']) ?? 'id';
+        $row = Quotes::query()
+            ->where($idCol, $quote)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'phone' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'order_type' => ['required'],
+            'origin_zip' => ['required', 'string', 'max:20'],
+            'dest_zip' => ['required', 'string', 'max:20'],
+            'service_levels_id' => ['nullable'],
+            'item_name' => ['nullable', 'array'],
+            'item_name.*' => ['nullable', 'string', 'max:255'],
+            'item_qty' => ['nullable', 'array'],
+            'item_qty.*' => ['nullable', 'numeric', 'min:1'],
+        ]);
+
+        $quoteData = [];
+        $serviceLevelId = $request->input('service_levels_id') ?: 1;
+        $this->putIfColumn('quotes', $quoteData, 'users_id', $request->input('users_id'));
+        $this->putIfColumn('quotes', $quoteData, 'company_name', $request->input('company_name'));
+        $this->putIfColumn('quotes', $quoteData, 'name', $validated['name']);
+        $this->putIfColumn('quotes', $quoteData, 'phone', $validated['phone']);
+        $this->putIfColumn('quotes', $quoteData, 'email', $validated['email']);
+        $this->putIfColumn('quotes', $quoteData, 'customer_ref', $request->input('customer_ref'));
+        $this->putIfColumn('quotes', $quoteData, 'po_number', $request->input('po_number'));
+        $this->putIfColumn('quotes', $quoteData, 'order_type', $validated['order_type']);
+        $this->putIfColumn('quotes', $quoteData, 'pay_note', $request->input('pay_note'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_zip', $validated['origin_zip']);
+        $this->putIfColumn('quotes', $quoteData, 'origin_is_residence', $request->boolean('origin_is_residence') ? 1 : 0);
+        $this->putIfColumn('quotes', $quoteData, 'origin_company_name', $request->input('origin_company_name'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_contact_phone', $request->input('origin_contact_phone'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_contact_email', $request->input('origin_contact_email'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_addressline1', $request->input('origin_addressline1'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_city', $request->input('origin_city'));
+        $this->putIfColumn('quotes', $quoteData, 'origin_state', $request->input('origin_state'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_zip', $validated['dest_zip']);
+        $this->putIfColumn('quotes', $quoteData, 'dest_is_residence', $request->boolean('dest_is_residence') ? 1 : 0);
+        $this->putIfColumn('quotes', $quoteData, 'dest_company_name', $request->input('dest_company_name'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_contact_phone', $request->input('dest_contact_phone'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_contact_email', $request->input('dest_contact_email'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_addressline1', $request->input('dest_addressline1'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_city', $request->input('dest_city'));
+        $this->putIfColumn('quotes', $quoteData, 'dest_state', $request->input('dest_state'));
+        $this->putIfColumn('quotes', $quoteData, 'service_levels_id', $serviceLevelId);
+        $this->putIfColumn('quotes', $quoteData, 'valuation_coverage', $request->input('valuation_coverage') ?? 0);
+        $this->putIfColumn('quotes', $quoteData, 'additional_valuation_declined', $request->boolean('additional_valuation_declined') ? 1 : 0);
+        $this->putIfColumn('quotes', $quoteData, 'deductible', $request->input('deductible') ?? 0);
+        $this->putIfColumn('quotes', $quoteData, 'distance', $request->input('distance', '0.00'));
+        $this->putIfColumn('quotes', $quoteData, 'referral_source', $request->input('referral_source'));
+        $this->putIfColumn('quotes', $quoteData, 'referral_by', $request->input('referral_by'));
+        $this->putIfColumn('quotes', $quoteData, 'notes', $request->input('notes'));
+        $this->putIfColumn('quotes', $quoteData, 'accessories', $this->accessoriesString($request));
+        $this->putIfColumn('quotes', $quoteData, 'num_of_items', array_sum(array_map('intval', $request->input('item_qty', []))));
+        $this->putIfColumn('quotes', $quoteData, 'total_cubes', array_sum(array_map('floatval', $request->input('item_cubes', []))));
+        
+        Log::info('Prepared quote data for update', [
+            'quote_id' => $quote,
+            'quote_data' => $quoteData,
+        ]);
+
+        if (Schema::hasColumn('quotes', 'updated_at')) {
+            $quoteData['updated_at'] = now();
+        }
+
+        try {
+            DB::table('quotes')->where($idCol, $quote)->update($quoteData);
+            
+            // Delete old items and insert new ones
+            $itemTable = $this->firstExistingTable(['quote_items', 'quotes_items', 'quote_item']);
+            if ($itemTable) {
+                $quoteIdCol = $this->firstExistingColumn($itemTable, ['quotes_id', 'quote_id', 'q_id']);
+                if ($quoteIdCol) {
+                    DB::table($itemTable)->where($quoteIdCol, $quote)->delete();
+                    $this->storeQuoteItems((int)$quote, $request);
+                }
+            }
+        } catch (\Throwable $exception) {
+            Log::error('Quote update failed', [
+                'message' => $exception->getMessage(),
+                'quote_data' => $quoteData,
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Quote could not be updated: '.$exception->getMessage());
+        }
+
+        return redirect()
+            ->to(url('/admin/order-management/quotes/' . $quote))
+            ->with('success', 'Quote updated successfully.');
+    }
+
     public function show(int|string $quote): Response
     {
         if (!Schema::hasTable('quotes')) {
@@ -294,10 +505,19 @@ class QuotesController extends Controller
         $phoneCol = $this->firstExistingColumn('quotes', ['phone', 'contact_phone', 'telephone']);
         $emailCol = $this->firstExistingColumn('quotes', ['email', 'contact_email']);
         $poNumCol = $this->firstExistingColumn('quotes', ['po_number', 'po_num', 'purchase_order']);
+        $originAddrCol = $this->firstExistingColumn('quotes', ['origin_addressline1', 'origin_address']);
+        $originCityCol = $this->firstExistingColumn('quotes', ['origin_city']);
+        $originStateCol = $this->firstExistingColumn('quotes', ['origin_state']);
         $originZipCol = $this->firstExistingColumn('quotes', ['origin_zip', 'origin_zipcode', 'zipcode_origin']);
         $originResCol = $this->firstExistingColumn('quotes', ['origin_is_residence', 'origin_residential', 'is_residence_origin']);
+        
+        $destAddrCol = $this->firstExistingColumn('quotes', ['dest_addressline1', 'dest_address']);
+        $destCityCol = $this->firstExistingColumn('quotes', ['dest_city']);
+        $destStateCol = $this->firstExistingColumn('quotes', ['dest_state']);
         $destZipCol = $this->firstExistingColumn('quotes', ['dest_zip', 'dest_zipcode', 'zipcode_dest']);
         $destResCol = $this->firstExistingColumn('quotes', ['dest_is_residence', 'dest_residential', 'is_residence_dest']);
+        
+        $zoneCol = $this->firstExistingColumn('quotes', ['service_levels_id', 'service_level', 'zone']);
         $distanceCol = $this->firstExistingColumn('quotes', ['distance', 'distance_miles', 'miles']);
         $itemsCol = $this->firstExistingColumn('quotes', ['num_of_items', 'item_count', 'items_count']);
         $cubesCol = $this->firstExistingColumn('quotes', ['total_cubes', 'cubes', 'total_cube']);
@@ -328,8 +548,15 @@ class QuotesController extends Controller
             $poNumCol,
             $originZipCol,
             $originResCol,
+            $originAddrCol,
+            $originCityCol,
+            $originStateCol,
             $destZipCol,
             $destResCol,
+            $destAddrCol,
+            $destCityCol,
+            $destStateCol,
+            $zoneCol,
             $distanceCol,
             $itemsCol,
             $cubesCol,
@@ -364,23 +591,38 @@ class QuotesController extends Controller
             $contactDetailsStr = implode(' | ', $contactDetails) ?: '-';
 
             // Format origin inline
+            $originAddr = $originAddrCol ? ($row->{$originAddrCol} ?? '') : '';
+            $originCity = $originCityCol ? ($row->{$originCityCol} ?? '') : '';
+            $originState = $originStateCol ? ($row->{$originStateCol} ?? '') : '';
             $originZip = $originZipCol ? ($row->{$originZipCol} ?? '') : '';
-            $originParts = [];
-            if ($originZip) $originParts[] = "Zip: {$originZip}";
-            $originParts[] = $originIsResidence ? 'Yes' : 'No';
-            $originStr = implode(' | ', $originParts);
+            
+            $originStr = trim(($originAddr ? $originAddr . ', ' : '') . ($originCity ? $originCity . ', ' : '') . ($originState ? $originState . ' ' : '') . $originZip);
+            if ($originStr) {
+                $originStr .= ' | Res: ' . ($originIsResidence ? 'Yes' : 'No');
+            } else {
+                $originStr = '-';
+            }
 
             // Format destination inline
+            $destAddr = $destAddrCol ? ($row->{$destAddrCol} ?? '') : '';
+            $destCity = $destCityCol ? ($row->{$destCityCol} ?? '') : '';
+            $destState = $destStateCol ? ($row->{$destStateCol} ?? '') : '';
             $destZip = $destZipCol ? ($row->{$destZipCol} ?? '') : '';
-            $destParts = [];
-            if ($destZip) $destParts[] = "Zip: {$destZip}";
-            $destParts[] = $destIsResidence ? 'Yes' : 'No';
-            $destStr = implode(' | ', $destParts);
+
+            $destStr = trim(($destAddr ? $destAddr . ', ' : '') . ($destCity ? $destCity . ', ' : '') . ($destState ? $destState . ' ' : '') . $destZip);
+            if ($destStr) {
+                $destStr .= ' | Res: ' . ($destIsResidence ? 'Yes' : 'No');
+            } else {
+                $destStr = '-';
+            }
+
+            $zone = $zoneCol ? (string) ($row->{$zoneCol} ?? '') : '-';
 
             return [
                 'id' => $quoteId,
                 'order_id' => $orderIdCol ? (string) ($row->{$orderIdCol} ?? '') : '',
                 'order_type' => $typeCol ? $this->orderTypeLabel($row->{$typeCol} ?? '') : '',
+                'zone' => $zone,
                 'contact_details' => $contactDetailsStr,
                 'origin' => $originStr,
                 'destination' => $destStr,
@@ -732,11 +974,17 @@ class QuotesController extends Controller
             return [];
         }
 
-        return DB::table($itemTable)
-            ->where($quoteIdCol, $quoteId)
-            ->get()
+        $query = DB::table($itemTable)->where($itemTable . '.' . $quoteIdCol, $quoteId);
+
+        // Check if items_id exists and join with items table to get descriptions and dimensions
+        if (Schema::hasColumn($itemTable, 'items_id') && Schema::hasTable('items')) {
+            $query->leftJoin('items', $itemTable . '.items_id', '=', 'items.id')
+                ->select($itemTable . '.*', 'items.item_name', 'items.length', 'items.width', 'items.height', 'items.weight');
+        }
+
+        return $query->get()
             ->map(fn ($item): array => [
-                'package_type' => $this->itemValue($item, ['package_type', 'pkg_type']),
+                'package_type' => $this->packageTypeLabel($this->itemValue($item, ['package_type', 'pkg_type'])),
                 'description' => $this->itemValue($item, ['item_name', 'description', 'name']),
                 'length' => $this->itemValue($item, ['length']),
                 'width' => $this->itemValue($item, ['width']),
@@ -747,6 +995,16 @@ class QuotesController extends Controller
                 'has_marble_or_stone' => (bool) ($this->itemValue($item, ['has_marble_or_stone', 'has_marble_or_stones']) ?: false),
             ])
             ->all();
+    }
+
+    private function packageTypeLabel(mixed $value): string
+    {
+        $types = [
+            '1' => 'Blanket Wrap',
+            '2' => 'Carton',
+        ];
+
+        return $types[(string) $value] ?? (string) $value;
     }
 
     private function itemValue(object $row, array $columns): mixed
@@ -786,6 +1044,70 @@ class QuotesController extends Controller
 
         return collect($out)
             ->mapWithKeys(fn (string $value, string $key): array => [$labels[$key] => $value])
+            ->all();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function parseAccessories(mixed $raw): array
+    {
+        $out = [
+            'REQ_ASSEMBLY' => '0',
+            'REQ_CRATING' => '0',
+            'REQ_PACKAGING' => '0',
+            'REQ_UNPACKAGING' => '0',
+            'REQ_STAIR_CARRY' => '0',
+            'NUM_OF_FLIGHTS' => '0',
+        ];
+
+        foreach (explode(',', (string) $raw) as $pair) {
+            [$key, $value] = array_pad(explode('|', $pair, 2), 2, '');
+            $key = trim($key);
+            if ($key !== '' && array_key_exists($key, $out)) {
+                $out[$key] = (string) $value;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function quoteItemsForForm(int $quoteId): array
+    {
+        $itemTable = $this->firstExistingTable(['quote_items', 'quotes_items', 'quote_item']);
+        if ($quoteId <= 0 || $itemTable === null) {
+            return [];
+        }
+
+        $quoteIdCol = $this->firstExistingColumn($itemTable, ['quotes_id', 'quote_id', 'q_id']);
+        if ($quoteIdCol === null) {
+            return [];
+        }
+
+        $query = DB::table($itemTable)->where($itemTable . '.' . $quoteIdCol, $quoteId);
+
+        if (Schema::hasColumn($itemTable, 'items_id') && Schema::hasTable('items')) {
+            $query->leftJoin('items', $itemTable . '.items_id', '=', 'items.id')
+                ->select($itemTable . '.*', 'items.item_name', 'items.length', 'items.width', 'items.height', 'items.weight');
+        }
+
+        return $query->get()
+            ->map(fn ($item): array => [
+                'id' => (int) ($item->id ?? Date.now()),
+                'is_custom' => true,
+                'package_type' => (string) ($this->itemValue($item, ['package_type', 'pkg_type']) ?? '1'),
+                'item_name' => (string) ($this->itemValue($item, ['item_name', 'description', 'name']) ?? ''),
+                'length' => (float) ($this->itemValue($item, ['length']) ?: 0),
+                'width' => (float) ($this->itemValue($item, ['width']) ?: 0),
+                'height' => (float) ($this->itemValue($item, ['height']) ?: 0),
+                'weight' => (float) ($this->itemValue($item, ['weight']) ?: 0),
+                'quantity' => (int) ($this->itemValue($item, ['quantity', 'qty']) ?: 0),
+                'cube' => (float) ($this->itemValue($item, ['cube', 'cubes']) ?: 0),
+                'has_marble_or_stone' => (bool) ($this->itemValue($item, ['has_marble_or_stone', 'has_marble_or_stones']) ?: false),
+            ])
             ->all();
     }
 

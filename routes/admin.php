@@ -5,8 +5,10 @@ use App\Http\Controllers\Admin\Accounting\PaymentsController;
 use App\Http\Controllers\Admin\Accounting\TipManagementController;
 use App\Http\Controllers\Admin\AdminSection\TasksController;
 use App\Http\Controllers\Admin\AdminSection\UsersController;
+use App\Http\Controllers\Admin\AdminSection\UserGroupsController;
 use App\Http\Controllers\Admin\OrderManagement\OrdersController;
 use App\Http\Controllers\Admin\OrderManagement\QuotesController;
+use App\Http\Controllers\Admin\MySettings\MyProfileController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -91,7 +93,11 @@ Route::middleware(['auth'])
                 Route::prefix('users')
                     ->name('users.')
                     ->group(function (): void {
-                        Route::get('/group', fn () => Inertia::render('Admin/AdminSection/Users/Group'))->name('group');
+                        Route::prefix('group')->name('group.')->group(function (): void {
+                            Route::get('/', [UserGroupsController::class, 'index'])->name('index');
+                            Route::get('/get-users', [UserGroupsController::class, 'getGroupUsers'])->name('get_group_users');
+                            Route::post('/bulk-delete', [UserGroupsController::class, 'bulkDelete'])->name('bulk_delete');
+                        });
                         Route::get('/over-due-report', fn () => Inertia::render('Admin/AdminSection/Users/OverDueReport'))->name('over_due_report');
                         Route::get('/pricing', fn () => Inertia::render('Admin/AdminSection/Users/Pricing'))->name('pricing');
                         Route::get('/user/create', [UsersController::class, 'create'])->name('create');
@@ -165,7 +171,8 @@ Route::middleware(['auth'])
         Route::prefix('my-settings')
             ->name('my_settings.')
             ->group(function (): void {
-                Route::get('/my-profile', fn () => Inertia::render('Admin/MySettings/MyProfile'))->name('my_profile');
+                Route::get('/my-profile', [MyProfileController::class, 'edit'])->name('my_profile');
+                Route::post('/my-profile', [MyProfileController::class, 'update'])->name('my_profile.update');
                 Route::get('/remote-printing', fn () => Inertia::render('Admin/MySettings/RemotePrinting'))->name('remote_printing');
                 Route::get('/setting', fn () => Inertia::render('Admin/MySettings/Setting'))->name('setting');
             });
@@ -180,6 +187,8 @@ Route::middleware(['auth'])
                 Route::get('/quotes/create', [QuotesController::class, 'create'])->name('quotes.create');
                 Route::get('/quotes/verify-zip/{zip}', [QuotesController::class, 'verifyZip'])->name('quotes.verify_zip');
                 Route::get('/quotes/{quote}', [QuotesController::class, 'show'])->name('quotes.show');
+                Route::get('/quotes/{quote}/edit', [QuotesController::class, 'edit'])->name('quotes.edit');
+                Route::post('/quotes/{quote}', [QuotesController::class, 'update'])->name('quotes.update');
 
                 // addresses
                 Route::prefix('addresses')
@@ -198,6 +207,11 @@ Route::middleware(['auth'])
                         Route::get('/all-orders', [OrdersController::class, 'allOrders'])->name('all_orders');
                         Route::get('/need-attention', [OrdersController::class, 'needAttention'])->name('need_attention');
                         Route::get('/new-orders', [OrdersController::class, 'newOrders'])->name('new_orders');
+                        Route::post('/cancel', [OrdersController::class, 'cancel'])->name('cancel');
+                        Route::post('/complete', [OrdersController::class, 'complete'])->name('complete');
+                        Route::post('/send-notification', [OrdersController::class, 'sendNotification'])->name('send_notification');
+                        Route::post('/bulk-push-pickups', [OrdersController::class, 'bulkPushPickups'])->name('bulk_push_pickups');
+                        Route::post('/bulk-push-deliveries', [OrdersController::class, 'bulkPushDeliveries'])->name('bulk_push_deliveries');
                     });
 
                 // warehouse

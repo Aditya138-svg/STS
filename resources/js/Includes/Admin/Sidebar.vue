@@ -6,14 +6,36 @@ import { useAdminSidebarMini } from '@/Composables/Admin/useAdminSidebarMini'
 
 const page = usePage()
 
-const { href } = useAdminAssets()
+const { href, rootUrl } = useAdminAssets()
 const { sidebarMini } = useAdminSidebarMini()
 const userName = computed(() => page.props.auth?.user?.name ?? 'Admin')
 const userInitial = computed(() => {
     const n = (userName.value || '').trim()
     return n ? n.charAt(0).toUpperCase() : '?'
 })
-const currentPath = computed(() => (page.url || '').split('?')[0])
+
+const rootPath = computed(() => {
+    const raw = rootUrl.value
+    if (!raw) return ''
+    if (raw.startsWith('http')) {
+        try {
+            const url = new URL(raw)
+            return url.pathname.replace(/\/$/, '')
+        } catch (e) {
+            return ''
+        }
+    }
+    return String(raw).replace(/\/$/, '')
+})
+
+const currentPath = computed(() => {
+    let p = (page.url || '').split('?')[0].replace(/\/$/, '')
+    if (rootPath.value && p.startsWith(rootPath.value)) {
+        p = p.substring(rootPath.value.length)
+    }
+    if (!p.startsWith('/')) p = '/' + p
+    return p
+})
 
 const open = reactive({
     users: false,
@@ -30,24 +52,42 @@ const open = reactive({
     dispatcher: false,
     scheduling: false,
     my_settings: false,
-    zipcode_management: false,
+    zipcode_management: true,
 })
 
 const isActive = (path) => currentPath.value === path || currentPath.value.startsWith(`${path}/`)
 
+const toggleSection = (sectionName) => {
+    const currentState = open[sectionName]
+    Object.keys(open).forEach(key => {
+        open[key] = false
+    })
+    open[sectionName] = !currentState
+}
+
 watchEffect(() => {
-    open.users = open.users || isActive('/admin/admin-section/users')
-    open.accessorials = open.accessorials || isActive('/admin/admin-section/accessorials')
-    open.tasks = open.tasks || isActive('/admin/admin-section/tasks')
-    open.addresses = open.addresses || isActive('/admin/order-management/addresses')
-    open.orders = open.orders || isActive('/admin/order-management/orders')
-    open.warehouse = open.warehouse || isActive('/admin/order-management/warehouse')
-    open.payments = open.payments || isActive('/admin/accounting/payments')
-    open.scanned_documents = open.scanned_documents || isActive('/admin/accounting/scanned-documents')
-    open.tip_management = open.tip_management || isActive('/admin/accounting/tip-management')
-    open.dispatcher = open.dispatcher || isActive('/admin/dispatch-scheduling/dispatcher')
-    open.scheduling = open.scheduling || isActive('/admin/dispatch-scheduling/scheduling')
-    open.zipcode_management = open.zipcode_management || isActive('/admin/dispatch-scheduling/zipcode-management')
+    // Only auto-open if nothing is explicitly open, or to sync with current path on load
+    const activeSection = Object.keys(open).find(key => {
+        if (key === 'users') return isActive('/admin/admin-section/users')
+        if (key === 'accessorials') return isActive('/admin/admin-section/accessorials')
+        if (key === 'tasks') return isActive('/admin/admin-section/tasks')
+        if (key === 'addresses') return isActive('/admin/order-management/addresses')
+        if (key === 'orders') return isActive('/admin/order-management/orders')
+        if (key === 'warehouse') return isActive('/admin/order-management/warehouse')
+        if (key === 'payments') return isActive('/admin/accounting/payments')
+        if (key === 'scanned_documents') return isActive('/admin/accounting/scanned-documents')
+        if (key === 'tip_management') return isActive('/admin/accounting/tip-management')
+        if (key === 'dispatcher') return isActive('/admin/dispatch-scheduling/dispatcher')
+        if (key === 'scheduling') return isActive('/admin/dispatch-scheduling/scheduling')
+        if (key === 'zipcode_management') return isActive('/admin/dispatch-scheduling/zipcode-management')
+        return false
+    })
+
+    if (activeSection) {
+        Object.keys(open).forEach(key => {
+            open[key] = (key === activeSection)
+        })
+    }
 })
 
 </script>
@@ -81,7 +121,7 @@ watchEffect(() => {
         <div class="admin-section-title">Admin</div>
         <ul class="admin-nav">
             <li class="admin-nav-expandable" :class="{ 'is-open': open.users }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/users') }" @click="open.users = !open.users">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/users') }" @click="toggleSection('users')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-users" /><span class="admin-nav-label">Users</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.users }" />
                 </button>
@@ -137,7 +177,7 @@ watchEffect(() => {
             </li>
 
             <li class="admin-nav-expandable" :class="{ 'is-open': open.accessorials }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/accessorials') }" @click="open.accessorials = !open.accessorials">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/accessorials') }" @click="toggleSection('accessorials')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-list" /><span class="admin-nav-label">Accessorials</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.accessorials }" />
                 </button>
@@ -190,7 +230,7 @@ watchEffect(() => {
             </li>
 
             <li class="admin-nav-expandable" :class="{ 'is-open': open.tasks }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/tasks') }" @click="open.tasks = !open.tasks">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/admin-section/tasks') }" @click="toggleSection('tasks')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-table-list" /><span class="admin-nav-label">Tasks</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.tasks }" />
                 </button>
@@ -212,7 +252,7 @@ watchEffect(() => {
         <div class="admin-section-title">Order management</div>
         <ul class="admin-nav">
             <li class="admin-nav-expandable" :class="{ 'is-open': open.addresses }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/addresses') }" @click="open.addresses = !open.addresses">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/addresses') }" @click="toggleSection('addresses')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-house" /><span class="admin-nav-label">Addresses</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.addresses }" />
                 </button>
@@ -244,7 +284,7 @@ watchEffect(() => {
             </li>
 
             <li class="admin-nav-expandable" :class="{ 'is-open': open.orders }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/orders') }" @click="open.orders = !open.orders">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/orders') }" @click="toggleSection('orders')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-cart-shopping" /><span class="admin-nav-label">Orders</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.orders }" />
                 </button>
@@ -262,7 +302,7 @@ watchEffect(() => {
             </li>
 
             <li class="admin-nav-expandable" :class="{ 'is-open': open.warehouse }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/warehouse') }" @click="open.warehouse = !open.warehouse">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/order-management/warehouse') }" @click="toggleSection('warehouse')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-truck" /><span class="admin-nav-label">Warehouse</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.warehouse }" />
                 </button>
@@ -283,7 +323,7 @@ watchEffect(() => {
         <div class="admin-section-title">Dispatch/Scheduling</div>
         <ul class="admin-nav">
             <li class="admin-nav-expandable" :class="{ 'is-open': open.scheduling }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/scheduling') }" @click="open.scheduling = !open.scheduling">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/scheduling') }" @click="toggleSection('scheduling')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-calendar-days" /><span class="admin-nav-label">Scheduling</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.scheduling }" />
                 </button>
@@ -304,7 +344,7 @@ watchEffect(() => {
                 </div>
             </li>
             <li class="admin-nav-expandable admin-nav-expandable--dispatcher" :class="{ 'is-open': open.dispatcher }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/dispatcher') }" @click="open.dispatcher = !open.dispatcher">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/dispatcher') }" @click="toggleSection('dispatcher')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-truck-fast" /><span class="admin-nav-label">Dispatcher</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.dispatcher }" />
                 </button>
@@ -354,7 +394,7 @@ watchEffect(() => {
                 </div>
             </li>
             <li class="admin-nav-expandable" :class="{ 'is-open': open.zipcode_management }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/zipcode-management') }" @click="open.zipcode_management = !open.zipcode_management">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/dispatch-scheduling/zipcode-management') }" @click="toggleSection('zipcode_management')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-location-dot" /><span class="admin-nav-label">Zipcode Management</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.zipcode_management }" />
                 </button>
@@ -364,7 +404,7 @@ watchEffect(() => {
                         <i class="fa-solid fa-chevron-right" />
                     </div>
                     <ul class="admin-subnav">
-                        <li><Link :href="href('admin/dispatch-scheduling/zipcode-management')" class="admin-link admin-subnav-link" :class="{ active: currentPath === '/admin/dispatch-scheduling/zipcode-management' }">Zipcode Management</Link></li>
+                        <li><Link :href="href('admin/dispatch-scheduling/zipcode-management')" class="admin-link admin-subnav-link" :class="{ active: isActive('/admin/dispatch-scheduling/zipcode-management') }">Zipcode Management</Link></li>
                         <li><Link :href="href('admin/dispatch-scheduling/zipcode-management/tier')" class="admin-link admin-subnav-link" :class="{ active: isActive('/admin/dispatch-scheduling/zipcode-management/tier') }">Tier</Link></li>
                         <li><Link :href="href('admin/dispatch-scheduling/zipcode-management/conflict-zipcode')" class="admin-link admin-subnav-link" :class="{ active: isActive('/admin/dispatch-scheduling/zipcode-management/conflict-zipcode') }">Conflict Zipcode</Link></li>
                     </ul>
@@ -387,7 +427,7 @@ watchEffect(() => {
                 </div>
             </li>
             <li class="admin-nav-expandable" :class="{ 'is-open': open.tip_management }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/tip-management') }" @click="open.tip_management = !open.tip_management">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/tip-management') }" @click="toggleSection('tip_management')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-hand-holding-dollar" /><span class="admin-nav-label">Tip Management</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.tip_management }" />
                 </button>
@@ -404,7 +444,7 @@ watchEffect(() => {
                 </div>
             </li>
             <li class="admin-nav-expandable" :class="{ 'is-open': open.payments }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/payments') }" @click="open.payments = !open.payments">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/payments') }" @click="toggleSection('payments')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-credit-card" /><span class="admin-nav-label">Payments</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.payments }" />
                 </button>
@@ -425,7 +465,7 @@ watchEffect(() => {
                 </div>
             </li>
             <li class="admin-nav-expandable" :class="{ 'is-open': open.scanned_documents }">
-                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/scanned-documents') }" @click="open.scanned_documents = !open.scanned_documents">
+                <button type="button" class="admin-link admin-toggle" :class="{ active: isActive('/admin/accounting/scanned-documents') }" @click="toggleSection('scanned_documents')">
                     <span class="admin-toggle-main"><i class="fa-solid fa-folder-open" /><span class="admin-nav-label">Scanned Documents</span></span>
                     <i class="fa-solid fa-chevron-right admin-toggle-chevron" :class="{ rotate: open.scanned_documents }" />
                 </button>
@@ -492,11 +532,34 @@ watchEffect(() => {
     border-right: 1px solid #b8d9cc;
     height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: #b8d9cc transparent;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: #b8d9cc;
+    border-radius: 10px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #a8d4c8;
 }
 
 .admin-subnav-panel {
     background: transparent;
+    transition: all 0.3s ease;
 }
 
 .admin-sidebar:not(.admin-sidebar--mini) .admin-nav-expandable.is-open > .admin-subnav-panel {
@@ -516,13 +579,15 @@ watchEffect(() => {
 .admin-sidebar-user {
     display: flex;
     align-items: center;
-    padding: 12px 14px;
+    padding: 16px 18px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
+    letter-spacing: -0.01em;
     line-height: 1.2;
     color: #0f5f5a;
     background: #c5e4d9;
     border-bottom: 1px solid #a8d4c8;
+    transition: padding 0.3s ease;
 }
 
 .admin-sidebar-user-mini {
@@ -543,14 +608,15 @@ watchEffect(() => {
 .admin-section-title {
     background: #f2f5f4;
     color: #546e7a;
-    padding: 8px 14px;
+    padding: 12px 18px 8px;
     margin: 0;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    text-transform: capitalize;
-    border-top: 1px solid #e2e8e6;
-    border-bottom: 1px solid #e2e8e6;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-top: 1px solid rgba(0,0,0,0.03);
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    opacity: 0.8;
 }
 
 .admin-sidebar-user + .admin-section-title {
@@ -568,19 +634,29 @@ watchEffect(() => {
     width: 100%;
     border: 0;
     background: transparent;
-    color: #000;
+    color: #1a1a1a;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     text-decoration: none;
-    padding: 9px 12px;
+    padding: 11px 18px;
     font-size: 14px;
+    font-weight: 500;
     text-align: left;
-    line-height: 1.1;
+    line-height: 1.4;
     outline: none;
     box-shadow: none;
     cursor: pointer;
     border-radius: 0;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.admin-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 16px;
+    transition: transform 0.2s ease;
 }
 
 .admin-toggle {
@@ -598,30 +674,40 @@ watchEffect(() => {
 .admin-toggle:hover:not(.active) {
     background: #c5f0e0;
     color: #000;
+    padding-left: 22px;
+}
+
+.admin-nav > li > .admin-link:not(.admin-subnav-link):hover:not(.active) .admin-toggle-main i,
+.admin-nav > li > .admin-link:not(.admin-subnav-link):hover:not(.active) > i:first-child,
+.admin-toggle:hover:not(.active) .admin-toggle-main i {
+    transform: scale(1.1);
 }
 
 /* Full sidebar: selected top-level links stay black on tinted mint (not white-on-teal) */
 .admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link) {
-    background: rgba(49, 151, 149, 0.32);
-    color: #111;
+    background: #008B8B;
+    color: #fff;
     font-weight: 700;
+    box-shadow: inset 4px 0 0 0 #004d4d;
 }
 
-.admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link) i:not(.text-danger) {
-    color: #111;
+.admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link) .admin-toggle-main i:not(.text-danger),
+.admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link) > i:first-child:not(.text-danger) {
+    color: #fff;
+    transform: scale(1.1);
 }
 
 .admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link) .admin-toggle-chevron {
-    color: #111;
+    color: #fff;
 }
 
 .admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link):hover {
-    background: rgba(49, 151, 149, 0.44);
-    color: #111;
+    background: #006666;
+    color: #fff;
 }
 
 .admin-sidebar:not(.admin-sidebar--mini) .admin-link.active:not(.admin-subnav-link):hover i:not(.text-danger) {
-    color: #111;
+    color: #fff;
 }
 
 /* Expanded nested rows: override generic .active (placed after .active rules for cascade) */
@@ -721,29 +807,34 @@ watchEffect(() => {
 
 .admin-subnav .admin-subnav-link {
     position: relative;
-    padding: 10px 12px 10px 28px;
-    font-size: 13px;
+    padding: 10px 18px 10px 42px;
+    font-size: 13.5px;
+    font-weight: 400;
+    color: #333;
 }
 
 .admin-subnav .admin-subnav-link::before {
     content: '';
     position: absolute;
-    left: 12px;
+    left: 24px;
     top: 50%;
     transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: #111;
+    background: rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
 }
 
 .admin-subnav .admin-subnav-link:hover:not(.active) {
-    background: rgba(48, 142, 135, 0.22) !important;
-    color: #111 !important;
+    background: rgba(48, 142, 135, 0.12) !important;
+    color: #000 !important;
+    padding-left: 46px;
 }
 
 .admin-subnav .admin-subnav-link:hover:not(.active)::before {
-    background: #111;
+    background: var(--admin-exp-teal);
+    transform: translateY(-50%) scale(1.5);
 }
 
 .admin-subnav-heading-row {
@@ -754,33 +845,37 @@ watchEffect(() => {
 
 .admin-subnav-heading {
     display: block;
-    padding: 10px 12px 10px 28px;
+    padding: 14px 18px 8px 42px;
     margin: 0;
-    background: #fff;
-    color: #5a6d7e;
+    background: transparent;
+    color: #444;
     font-weight: 700;
-    font-size: 12px;
-    letter-spacing: 0.02em;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     line-height: 1.3;
+    opacity: 0.6;
 }
 
 .admin-subnav .admin-subnav-link.active {
-    background: rgba(52, 142, 132, 0.22);
-    color: #111;
-    font-weight: 700;
+    background: #008B8B;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: inset 4px 0 0 0 #004d4d;
 }
 
 .admin-subnav .admin-subnav-link.active::before {
-    background: #111;
+    background: #fff;
+    transform: translateY(-50%) scale(1.2);
 }
 
 .admin-subnav .admin-subnav-link.active:hover {
-    background: rgba(52, 142, 132, 0.35);
-    color: #111;
+    background: #006666;
+    color: #fff;
 }
 
 .admin-subnav .admin-subnav-link.active:hover::before {
-    background: #111;
+    background: #fff;
 }
 
 .rotate {
@@ -793,8 +888,9 @@ watchEffect(() => {
     --admin-mini-head-font: 15px;
     --admin-mini-sub-font: 14px;
     background: #eef2f1;
-    border-right-color: #cfd8dc;
+    border-right: 1px solid rgba(0,0,0,0.1);
     overflow: visible;
+    box-shadow: 4px 0 12px rgba(0,0,0,0.03);
 }
 
 .admin-sidebar--mini .admin-sidebar-user {
@@ -831,27 +927,30 @@ watchEffect(() => {
 
 .admin-sidebar--mini .admin-sidebar-user-row > .admin-mini-hover-label {
     position: absolute;
-    left: 100%;
+    left: calc(100% + 12px);
     top: 50%;
-    transform: translateY(-50%);
-    margin-left: 10px;
-    padding: 8px 14px;
-    background: var(--admin-exp-teal);
+    transform: translateY(-50%) translateX(-10px);
+    padding: 10px 16px;
+    background: #0f5f5a;
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     white-space: nowrap;
     z-index: 450;
-    border-radius: 4px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     pointer-events: none;
     max-width: min(300px, 75vw);
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
 }
 
 .admin-sidebar--mini .admin-sidebar-user-row:hover > .admin-mini-hover-label {
     display: block;
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
 }
 
 /* Invisible hover bridge (icon rail → flyout), leaf + expandable */
@@ -949,48 +1048,38 @@ watchEffect(() => {
     font-size: var(--admin-mini-rail-icon);
 }
 
-.admin-sidebar--mini .admin-nav-mini-leaf > .admin-subnav-panel {
-    position: absolute;
-    left: 100%;
-    top: 0;
-    min-width: 252px;
-    max-width: min(340px, 78vw);
-    margin-left: 0;
-    border: 1px solid var(--admin-exp-teal);
-    box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.14);
-    z-index: 400;
-    display: none !important;
-    background: var(--admin-exp-mint);
-    overflow: visible;
-    pointer-events: auto;
-}
-
-.admin-sidebar--mini .admin-nav-mini-leaf:hover > .admin-subnav-panel,
-.admin-sidebar--mini .admin-nav-mini-leaf:focus-within > .admin-subnav-panel,
-.admin-sidebar--mini .admin-nav-mini-leaf .admin-subnav-panel:hover {
-    display: block !important;
-}
-
+.admin-sidebar--mini .admin-nav-mini-leaf > .admin-subnav-panel,
 .admin-sidebar--mini .admin-nav-expandable > .admin-subnav-panel {
     position: absolute;
     left: 100%;
     top: 0;
     min-width: 252px;
     max-width: min(340px, 78vw);
-    margin-left: 0;
-    border: 1px solid var(--admin-exp-teal);
-    box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.14);
+    margin-left: 8px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     z-index: 400;
-    display: none !important;
-    background: var(--admin-exp-mint);
-    overflow: visible;
+    display: block !important;
+    background: #fdfdfd;
+    border: 1px solid rgba(48, 142, 135, 0.2);
+    overflow: hidden;
     pointer-events: auto;
+    border-radius: 8px;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    visibility: hidden;
 }
 
+.admin-sidebar--mini .admin-nav-mini-leaf:hover > .admin-subnav-panel,
+.admin-sidebar--mini .admin-nav-mini-leaf:focus-within > .admin-subnav-panel,
+.admin-sidebar--mini .admin-nav-mini-leaf .admin-subnav-panel:hover,
 .admin-sidebar--mini .admin-nav-expandable:hover > .admin-subnav-panel,
 .admin-sidebar--mini .admin-nav-expandable:focus-within > .admin-subnav-panel,
-.admin-sidebar--mini .admin-subnav-panel:hover {
-    display: block !important;
+.admin-sidebar--mini .admin-nav-expandable .admin-subnav-panel:hover {
+    opacity: 1;
+    transform: translateX(0);
+    visibility: visible;
 }
 
 .admin-sidebar--mini .admin-mini-flyout-head {
@@ -1034,8 +1123,13 @@ watchEffect(() => {
 }
 
 .admin-sidebar--mini .admin-subnav .admin-subnav-link.active {
-    background: rgba(52, 142, 132, 0.26);
-    color: #111;
+    background: var(--admin-exp-teal);
+    color: #fff;
+    font-weight: 600;
+}
+
+.admin-sidebar--mini .admin-subnav .admin-subnav-link.active::before {
+    background: #fff;
 }
 
 .admin-sidebar--mini .admin-subnav-heading {

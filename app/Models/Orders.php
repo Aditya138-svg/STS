@@ -858,7 +858,7 @@ class Orders extends Model
      *
      * @return float
      */
-    protected function calculateStorageCharges()
+    public function calculateStorageCharges()
     {
         $storageCharges = 0;
 
@@ -889,7 +889,7 @@ class Orders extends Model
      *
      * @return string|null
      */
-    protected function getStorageStartDate()
+    public function getStorageStartDate()
     {
         // If it's a pickup order
         if ($this->order_type == config('constants.ORDER_TYPE.PICKUP')) {
@@ -925,11 +925,13 @@ class Orders extends Model
      * @param  string|null  $startDate
      * @return int
      */
-    protected function calculateDateDiff($startDate)
+    public function calculateDateDiff($startDate)
     {
         if ($startDate) {
             // If actual delivery date exists, use it as the comparison date
-            $compareDate = $this->criticalDates->actual_delivery_date ? \Carbon\Carbon::parse($this->criticalDates->actual_delivery_date) : \Carbon\Carbon::now();
+            $compareDate = ($this->criticalDates && $this->criticalDates->actual_delivery_date) 
+                ? \Carbon\Carbon::parse($this->criticalDates->actual_delivery_date) 
+                : \Carbon\Carbon::now();
 
             // Calculate the difference in days
             return max(\Carbon\Carbon::parse($startDate)->diffInDays($compareDate, false), 0);

@@ -1,0 +1,11 @@
+<?php
+require __DIR__ . '/../vendor/autoload.php';
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+use Illuminate\Contracts\Console\Kernel;
+$app->make(Kernel::class)->bootstrap();
+
+use Illuminate\Support\Facades\DB;
+
+$tables = DB::select('SHOW TABLES');
+print_r($tables);

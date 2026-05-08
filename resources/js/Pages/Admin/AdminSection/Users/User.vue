@@ -221,16 +221,28 @@ function bulkDelete() {
     })
 }
 
-/** Simple window of page numbers near current page */
-const pageNumbers = computed(() => {
-    const last = props.pagination.last_page || 1
-    const cur = props.pagination.current_page || 1
-    const windowSize = 5
-    let start = Math.max(1, cur - 2)
-    let end = Math.min(last, start + windowSize - 1)
-    start = Math.max(1, end - windowSize + 1)
+/** Shortened pagination with ellipses */
+const displayedPages = computed(() => {
+    const total = props.pagination.last_page || 1
+    const current = props.pagination.current_page || 1
     const pages = []
-    for (let i = start; i <= end; i++) pages.push(i)
+
+    if (total <= 7) {
+        for (let i = 1; i <= total; i++) pages.push(i)
+    } else {
+        pages.push(1)
+        if (current > 3) pages.push('...')
+
+        const start = Math.max(2, current - 1)
+        const end = Math.min(total - 1, current + 1)
+
+        for (let i = start; i <= end; i++) {
+            if (!pages.includes(i)) pages.push(i)
+        }
+
+        if (current < total - 2) pages.push('...')
+        if (!pages.includes(total)) pages.push(total)
+    }
     return pages
 })
 </script>
@@ -241,30 +253,19 @@ const pageNumbers = computed(() => {
     <div class="container-fluid dash">
         <div class="dashboarddiv">
             <div class="box">
-                <div class="box-header">
-                    <div class="btn-toolbar pull-right">
-                        <div class="btn-group">
-                            <Link :href="href(links.create_user.replace(/^\//, ''))" class="btn btn-warning">
-                                <i class="fa fa-plus" /> Create User
-                            </Link>
-                        </div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-danger" :disabled="deleting" @click="bulkDelete">
-                                <i class="fa fa-trash" /> Delete
-                            </button>
-                        </div>
-                        <div class="btn-group">
-                            <a
-                                :href="links.help_users"
-                                class="btn btn-primary"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                Help <i class="fa fa-question-circle" aria-hidden="true" />
-                            </a>
-                        </div>
+                <div class="box-header-flex">
+                    <h3 class="box-title">User Directory</h3>
+                    <div class="header-actions">
+                        <Link :href="href(links.create_user.replace(/^\//, ''))" class="btn btn-warning">
+                            <i class="fa fa-plus me-1"></i> Create User
+                        </Link>
+                        <button type="button" class="btn btn-danger" :disabled="deleting" @click="bulkDelete">
+                            <i class="fa fa-trash me-1"></i> Delete
+                        </button>
+                        <a :href="links.help_users" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
+                            <i class="fa fa-question-circle me-1"></i> Help
+                        </a>
                     </div>
-                    <h3 class="box-title">List</h3>
                 </div>
 
                 <div class="box-body">
@@ -278,58 +279,47 @@ const pageNumbers = computed(() => {
                     </p>
 
                     <!-- Blade-style filters: Status + Role (DataTables #filter_by_status_div / #filter_by_role) -->
-                    <div id="user-filters" class="row mb-3">
-                        <div class="col-lg-6 col-sm-12">
-                            <label class="control-label">Status</label>
-                            <select v-model="isActive" class="form-control input-sm" @change="applyFilters">
-                                <option value="">-All-</option>
+                    <div class="sts-table-filter-shell">
+                        <div class="sts-filter-group">
+                            <span class="sts-filter-label">Account Status</span>
+                            <select v-model="isActive" class="sts-input-sm" @change="applyFilters">
+                                <option value="">-All Statuses-</option>
                                 <option :value="status_flags.active">Active</option>
                                 <option :value="status_flags.inactive">In-Active</option>
                             </select>
                         </div>
-                        <div class="col-lg-6 col-sm-12">
-                            <label class="control-label">Choose Role</label>
-                            <select v-model="userType" class="form-control input-sm" @change="applyFilters">
+                        <div class="sts-filter-group">
+                            <span class="sts-filter-label">User Role</span>
+                            <select v-model="userType" class="sts-input-sm" @change="applyFilters">
                                 <option value="">-Choose Role-</option>
-                                <option
-                                    v-for="(label, storedKey) in roles_dropdown"
-                                    :key="storedKey"
-                                    :value="storedKey"
-                                >
+                                <option v-for="(label, storedKey) in roles_dropdown" :key="storedKey" :value="storedKey">
                                     {{ label }}
                                 </option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-3">
-                            <label class="control-label">Associate</label>
-                            <select v-model="associate" class="form-control input-sm" @change="applyFilters">
+                        <div class="sts-filter-group">
+                            <span class="sts-filter-label">Associate</span>
+                            <select v-model="associate" class="sts-input-sm" @change="applyFilters">
                                 <option value="">-All Associates-</option>
                                 <option v-for="a in associates" :key="a.id" :value="String(a.id)">
                                     {{ a.name || a.company_name }}
                                 </option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="control-label">Storage Rule</label>
-                            <select v-model="storageRule" class="form-control input-sm" @change="applyFilters">
+                        <div class="sts-filter-group">
+                            <span class="sts-filter-label">Storage Rule</span>
+                            <select v-model="storageRule" class="sts-input-sm" @change="applyFilters">
                                 <option value="">-All-</option>
                                 <option v-for="s in storage_rules" :key="s" :value="s">{{ s }}</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="control-label">Invoice Terms</label>
-                            <select v-model="invoiceTermsFilter" class="form-control input-sm" @change="applyFilters">
-                                <option value="">-All-</option>
-                                <option v-for="t in invoice_terms" :key="t" :value="t">{{ t }}</option>
-                            </select>
+                        <div class="sts-filter-group">
+                            <span class="sts-filter-label">Quick Search</span>
+                            <input v-model="search" type="text" class="sts-input-sm" placeholder="Name, email, company..." />
                         </div>
-                        <div class="col-md-3">
-                            <label class="control-label">Search</label>
-                            <input v-model="search" type="text" class="form-control input-sm" placeholder="Search…" />
-                        </div>
+                        <button type="button" class="sts-btn-go ms-auto" @click="applyFilters">
+                            <i class="fa fa-filter me-2"></i> Apply Filters
+                        </button>
                     </div>
 
                     <p v-if="user_types.length" class="text-muted small mb-3 user-types-line">
@@ -340,36 +330,24 @@ const pageNumbers = computed(() => {
                     </p>
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped" id="listing_table">
+                        <table class="sts-table" id="listing_table">
                             <thead>
                                 <tr>
-                                    <th class="text-center">
+                                    <th class="text-center checkbox-col">
                                         <input
                                             type="checkbox"
                                             :checked="selectAllOnPage"
                                             @change="toggleSelectAll(($event.target).checked)"
+                                            class="row-checkbox"
                                         />
                                     </th>
-                                    <th>Image</th>
-                                    <th>
-                                        <a href="#" class="sortable" @click.prevent="sort('company_name')">Company</a>
-                                    </th>
-                                    <th>
-                                        <a href="#" class="sortable" @click.prevent="sort('name')">Name</a>
-                                    </th>
-                                    <th>
-                                        <a href="#" class="sortable" @click.prevent="sort('email')">Email Address</a>
-                                    </th>
-                                    <th>User Type</th>
-                                    <th>
-                                        <a href="#" class="sortable" @click.prevent="sort('associate_raw')">Associate</a>
-                                    </th>
-                                    <th>Storage Rule</th>
-                                    <th>Invoice Terms</th>
-                                    <th>
-                                        <a href="#" class="sortable" @click.prevent="sort('created_at')">Created On</a>
-                                    </th>
-                                    <th>Is Active</th>
+                                    <th>User</th>
+                                    <th>Company</th>
+                                    <th>Role</th>
+                                    <th>Associate</th>
+                                    <th>Rule/Terms</th>
+                                    <th>Created On</th>
+                                    <th>Status</th>
                                     <th class="text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -380,76 +358,73 @@ const pageNumbers = computed(() => {
                                             type="checkbox"
                                             :checked="selectedIds.has(user.id)"
                                             @change="toggleRow(user.id, ($event.target).checked)"
+                                            class="row-checkbox"
                                         />
                                     </td>
-                                    <td class="text-center">
-                                        <img
-                                            :src="getUserImage(user)"
-                                            class="img-circle user-avatar"
-                                            width="40"
-                                            height="40"
-                                            alt=""
-                                        />
+                                    <td>
+                                        <div class="user-info-cell" style="display: flex; align-items: center; gap: 12px;">
+                                            <img :src="getUserImage(user)" class="sts-avatar" width="40" height="40" alt="" />
+                                            <div class="user-details">
+                                                <div style="font-weight: 700; color: var(--sts-text-main);">{{ user.name }}</div>
+                                                <div style="font-size: 12px; color: var(--sts-text-muted);">{{ user.email }}</div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td>{{ user.company_name }}</td>
-                                    <td>{{ user.name }}</td>
-                                    <td>{{ user.email }}</td>
-                                    <td>{{ user.user_role }}</td>
-                                    <td>{{ user.associate }}</td>
-                                    <td>{{ user.storage_rule }}</td>
-                                    <td>{{ user.invoice_term }}</td>
+                                    <td>{{ user.company_name || '-' }}</td>
+                                    <td><span class="sts-id-tag">{{ user.user_role }}</span></td>
+                                    <td>{{ user.associate || '-' }}</td>
+                                    <td>
+                                        <div style="font-size: 13px;">{{ user.storage_rule || '-' }}</div>
+                                        <div style="font-size: 11px; opacity: 0.7;">{{ user.invoice_term || '-' }}</div>
+                                    </td>
                                     <td>{{ user.created_on }}</td>
                                     <td class="text-center">
-                                        <span :class="['label', user.is_active ? 'label-success' : 'label-danger']">
+                                        <span :class="['sts-badge', user.is_active ? 'sts-badge-success' : 'sts-badge-danger']">
                                             {{ user.active_label }}
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <div class="btn-group btn-group-sm">
-                                            <Link
-                                                :href="href(userShowPath(user.id))"
-                                                class="btn btn-default"
-                                                title="View"
-                                            >
+                                        <div class="sts-action-icons">
+                                            <Link :href="href(userShowPath(user.id))" class="sts-action-link" title="View Profile">
                                                 <i class="fa fa-eye"></i>
                                             </Link>
-                                            <Link
-                                                :href="href(userEditPath(user.id))"
-                                                class="btn btn-default"
-                                                title="Edit"
-                                            >
-                                                <i class="fa fa-edit"></i>
+                                            <Link :href="href(userEditPath(user.id))" class="sts-action-link" title="Edit User">
+                                                <i class="fa fa-pencil"></i>
                                             </Link>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr v-if="!users.length">
-                                    <td colspan="12" class="text-center text-muted empty-row">No users found.</td>
+                                    <td colspan="12" class="sts-table-empty">
+                                        <i class="fa fa-users sts-empty-icon"></i>
+                                        <span class="sts-empty-text">No users found</span>
+                                        <span class="sts-empty-subtext">Try adjusting your filters or search terms.</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="row" v-if="pagination.total > 0">
+                    <div class="row mt-20" v-if="pagination.total > 0">
                         <div class="col-md-6">
-                            <div class="dataTables_info">
-                                Showing {{ paginationInfo.start }} to {{ paginationInfo.end }} of {{ pagination.total }} entries
+                            <div style="font-size: 13px; color: var(--sts-text-muted); font-weight: 500;">
+                                Showing <span style="color: var(--sts-text-main); font-weight: 700;">{{ paginationInfo.start }}</span> to <span style="color: var(--sts-text-main); font-weight: 700;">{{ paginationInfo.end }}</span> of <span style="color: var(--sts-text-main); font-weight: 700;">{{ pagination.total }}</span> users
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <ul class="pagination pull-right">
+                            <ul class="sts-pagination justify-content-end" style="display: flex; justify-content: flex-end;">
                                 <li :class="{ disabled: pagination.current_page <= 1 }">
-                                    <a href="#" @click.prevent="pagination.current_page > 1 && goToPage(pagination.current_page - 1)">Previous</a>
+                                    <a href="#" @click.prevent="pagination.current_page > 1 && goToPage(pagination.current_page - 1)">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </a>
                                 </li>
-                                <li
-                                    v-for="p in pageNumbers"
-                                    :key="p"
-                                    :class="{ active: p === pagination.current_page }"
-                                >
-                                    <a href="#" @click.prevent="goToPage(p)">{{ p }}</a>
+                                <li v-for="p in displayedPages" :key="p" :class="{ active: p === pagination.current_page, disabled: p === '...' }">
+                                    <a href="#" @click.prevent="p !== '...' && goToPage(p)">{{ p }}</a>
                                 </li>
                                 <li :class="{ disabled: pagination.current_page >= pagination.last_page }">
-                                    <a href="#" @click.prevent="pagination.current_page < pagination.last_page && goToPage(pagination.current_page + 1)">Next</a>
+                                    <a href="#" @click.prevent="pagination.current_page < pagination.last_page && goToPage(pagination.current_page + 1)">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </div>
@@ -473,47 +448,21 @@ const pageNumbers = computed(() => {
 </template>
 
 <style scoped>
-.sortable {
-    color: #333;
-    text-decoration: none;
-}
-.sortable:hover {
-    color: #23527c;
-    text-decoration: underline;
-}
 .user-avatar {
-    border: 2px solid #ddd;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-.empty-row {
-    padding: 24px 12px;
-    font-weight: 600;
+
+.user-info-cell:hover .sts-avatar {
+    transform: scale(1.05);
+    border-color: var(--sts-primary);
 }
-.label {
-    padding: 4px 8px;
-    font-size: 11px;
-    font-weight: normal;
-    border-radius: 3px;
+
+.sts-avatar {
+    transition: all 0.2s ease;
 }
-.label-success {
-    background-color: #5cb85c;
-    color: #fff;
-}
-.label-danger {
-    background-color: #d9534f;
-    color: #fff;
-}
-.dataTables_info {
-    padding-top: 8px;
-    font-size: 12px;
-}
-.pagination > li > a {
-    cursor: pointer;
-}
-.pagination > .disabled > a {
-    cursor: not-allowed;
-    pointer-events: none;
-}
-.btn-toolbar.pull-right {
-    float: right;
+
+.mt-20 {
+    margin-top: 20px;
 }
 </style>
