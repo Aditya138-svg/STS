@@ -30,7 +30,48 @@ export function useGuestAssets() {
      * Named route URL (relative), shared from HandleInertiaRequests.
      * @param {string} name e.g. "guest.home", "login"
      */
+    /**
+     * Named route URL (relative), shared from HandleInertiaRequests.
+     * Also supports .current(name) check when called without arguments.
+     * @param {string} [name] e.g. "guest.home", "login"
+     */
     function route(name) {
+        if (!name) {
+            return {
+                current: (checkName) => {
+                    const routes = page.props.sts?.routes ?? {}
+                    const rawTarget = routes[checkName]
+                    if (!rawTarget || rawTarget === '#') return false
+
+                    let currentPath = page.url.split('?')[0] || '/'
+                    if (!currentPath.startsWith('/')) {
+                        currentPath = `/${currentPath}`
+                    }
+
+                    let targetPath = String(rawTarget)
+                    if (targetPath.includes('://')) {
+                        try {
+                            targetPath = new URL(targetPath).pathname || '/'
+                        } catch {
+                            return false
+                        }
+                    }
+                    if (!targetPath.startsWith('/')) {
+                        targetPath = `/${targetPath}`
+                    }
+
+                    const normalize = (p) => String(p).replace(/\/$/, '') || '/'
+                    const nCurrent = normalize(currentPath)
+                    const nTarget = normalize(targetPath)
+
+                    if (nTarget === '/' && (nCurrent === '/' || nCurrent === '')) {
+                        return true
+                    }
+
+                    return nTarget === nCurrent
+                },
+            }
+        }
         const routes = page.props.sts?.routes ?? {}
         const href = routes[name]
         return typeof href === 'string' && href.length ? href : '#'

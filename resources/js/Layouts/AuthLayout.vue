@@ -1,29 +1,43 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
-import { useGuestAssets } from '@/composables/Guest'
+import { useGuestAssets } from '@/Composables/Guest'
+import Navbar from '@/Includes/Guest/Header.vue'
+import Header from '../Includes/Guest/Header.vue'
+
+const props = defineProps({
+    simple: {
+        type: Boolean,
+        default: false
+    },
+    authImage: {
+        type: String,
+        default: 'login.svg'
+    }
+})
 
 const page = usePage()
-const { route } = useGuestAssets()
+const { asset, route, sts } = useGuestAssets()
 </script>
 
 <template>
-    <div class="auth-shell" style="background: linear-gradient(135deg, #f6f8f7 0%, #eef3f1 100%);">
-        <header class="auth-bar border-bottom bg-white py-3 shadow-sm">
-            <div class="container auth-bar-inner">
-                <Link :href="route('guest.home')" class="text-decoration-none fw-semibold text-dark">
-                    {{ page.props.sts?.appName ?? 'STS' }}
-                </Link>
-                <Link :href="route('guest.home')" class="small text-muted text-decoration-none">← Back home</Link>
+    <div class="auth-wrapper">
+        <Header />
+        <div class="auth-container" :class="{ 'auth-simple': simple }">
+            <!-- Left Side: Visuals (Hidden in simple mode) -->
+            <div v-if="!simple" class="auth-visual">
+                <img :src="asset('images/wp/' + authImage)" alt="Illustration" class="auth-illustration-img">
             </div>
-        </header>
-        <div class="auth-main">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-5 col-xl-4">
-                        <slot />
-                    </div>
+
+            <!-- Right Side / Main Card: Content -->
+            <div class="auth-content">
+                
+                <div class="content-body">
+                    <slot />
                 </div>
             </div>
         </div>
+
+        <!-- Full width Guest Footer at the very bottom -->
+        <!-- <Footer class="auth-page-footer" /> -->
     </div>
 </template>

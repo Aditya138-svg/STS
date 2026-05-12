@@ -8,6 +8,7 @@ import { useAdminAssets } from '@/Composables/Admin'
 import { useAdminSidebarMini } from '@/Composables/Admin/useAdminSidebarMini'
 import { useAdminMobileSidebar } from '@/Composables/Admin/useAdminMobileSidebar'
 import '@/../../resources/css/admin-common.css'
+import '@/../../resources/css/app.css'
 
 const page = usePage()
 const { sidebarMini } = useAdminSidebarMini()
@@ -47,17 +48,24 @@ onMounted(() => {
         <div class="admin-main">
             <AdminSidebar v-show="!isMobile" />
             <div class="admin-right">
-                <div v-if="isAdminDashboard" class="admin-page-toolbar">
-                    <select class="admin-dashboard-select" aria-label="Dashboard layout">
-                        <option>DEFAULT DASHBOARD</option>
-                    </select>
-                    <div class="admin-dashboard-actions">
-                        <button type="button" class="btn btn-warning btn-sm admin-dash-download">
+                <div v-if="isAdminDashboard" class="admin-dashboard-toolbar">
+                    <div class="flex items-center gap-4">
+                        <select class="dashboard-select">
+                            <option selected>DEFAULT DASHBOARD</option>
+                            <option>ACCOUNT DASHBOARD</option>
+                            <option>CUSTOMER SERVICE DASHBOARD</option>
+                            <option>WAREHOUSE DASHBOARD</option>
+                            <option>DISPATCH DASHBOARD</option>
+                            <option>DRIVER DASHBOARD</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="btn-dash btn-orange">
                             Download Admin App
                         </button>
-                        <button type="button" class="btn btn-sm admin-dash-help">
-                            <i class="fa-regular fa-circle-question me-1" aria-hidden="true" />
-                            Help
+                        <button class="btn-dash btn-teal">
+                            Help Center
+                            <i class="fa fa-question-circle"></i>
                         </button>
                     </div>
                 </div>
@@ -93,60 +101,57 @@ onMounted(() => {
     --admin-sidebar-width: var(--admin-sidebar-mini-width);
 }
 
-.admin-page-toolbar {
+.admin-dashboard-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 10px 14px;
+    gap: 16px;
+    padding: 16px 24px;
     background: #fff;
     border-bottom: 1px solid #dde3e6;
-    flex-shrink: 0;
+    margin-bottom: 12px;
 }
 
-.admin-dashboard-select {
-    flex: 0 1 300px;
-    max-width: 100%;
-    height: 32px;
-    font-size: 12px;
-    font-weight: 600;
-    border: 1px solid #cfd5d8;
-    background: #fff;
-    padding: 4px 12px;
-    color: #222;
-    border-radius: 2px;
+.dashboard-select {
+    width: 320px;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #3c8dbc;
+    border-radius: 4px;
+    font-weight: 700;
+    color: #444;
+    text-transform: uppercase;
 }
 
-.admin-dashboard-actions {
+.btn-dash {
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    flex: 1;
+    transition: background 0.2s;
 }
 
-.admin-dash-download {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 14px;
-    white-space: nowrap;
+.btn-orange {
+    background: #f39c12;
 }
 
-.admin-dash-help {
-    font-size: 12px;
-    font-weight: 600;
-    padding: 6px 14px;
-    background-color: #11635a !important;
-    border-color: #0d5249 !important;
-    color: #fff !important;
+.btn-orange:hover {
+    background: #e67e22;
 }
 
-.admin-dash-help:hover {
-    background-color: #0d5249 !important;
-    border-color: #0a403a !important;
-    color: #fff !important;
+.btn-teal {
+    background: #11635a;
+}
+
+.btn-teal:hover {
+    background: #0d5249;
 }
 
 .admin-main {

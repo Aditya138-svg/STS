@@ -1,6 +1,6 @@
 <script setup>
 import AuthLayout from '@/Layouts/AuthLayout.vue'
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, Link, useForm } from '@inertiajs/vue3'
 import { useGuestAssets } from '@/composables/Guest'
 
 defineProps({
@@ -19,25 +19,41 @@ function submit() {
 </script>
 
 <template>
-    <AuthLayout>
-        <Head title="Forgot password" />
+    <AuthLayout authImage="forgot-password.svg">
+        <Head title="Forgot Password" />
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-4">
-                <h1 class="h4 mb-3">Reset password</h1>
-                <p class="small text-muted">We will email you a reset link.</p>
+        <h1 class="auth-title">Reset password</h1>
+        <p class="small text-muted mb-4">We will email you a password reset link.</p>
 
-                <div v-if="status" class="alert alert-success small py-2">{{ status }}</div>
+        <div v-if="status" class="alert alert-success small py-2 mb-4">
+            {{ status }}
+        </div>
 
-                <form @submit.prevent="submit">
-                    <div class="mb-3">
-                        <label class="form-label small" for="email">Email</label>
-                        <input id="email" v-model="form.email" type="email" class="form-control form-control-sm" required autocomplete="username">
-                        <div v-if="form.errors.email" class="text-danger small mt-1">{{ form.errors.email }}</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100" :disabled="form.processing">Email link</button>
-                </form>
+        <form @submit.prevent="submit">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <div class="auth-input-group">
+                    <input 
+                        id="email" 
+                        v-model="form.email" 
+                        type="email" 
+                        class="form-control" 
+                        required 
+                        autocomplete="username"
+                        placeholder="Enter your email"
+                    >
+                    <i class="fas fa-envelope input-icon"></i>
+                </div>
+                <div v-if="form.errors.email" class="text-danger small mt-1">{{ form.errors.email }}</div>
             </div>
+
+            <button type="submit" class="btn-auth" :disabled="form.processing">
+                {{ form.processing ? 'Sending...' : 'Email password reset link' }}
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Remembered your password? <Link :href="route('login')">Sign in</Link>
         </div>
     </AuthLayout>
 </template>

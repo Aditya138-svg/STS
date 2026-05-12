@@ -1,97 +1,149 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { Head, usePage } from '@inertiajs/vue3'
 import GuestLayout from '@/Layouts/GuestLayout.vue'
 import { useGuestAssets } from '@/composables/Guest'
+import '../../../css/guest/guest-about.css'
 
 const page = usePage()
-const { asset } = useGuestAssets()
+const { asset, route } = useGuestAssets()
 const appName = computed(() => page.props.sts?.appName ?? 'STS')
+
+onMounted(() => {
+    const observerOptions = {
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+            } else {
+                entry.target.classList.remove('is-visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+        observer.observe(el);
+    });
+});
 </script>
 
 <template>
     <GuestLayout>
         <Head :title="`About — ${appName}`" />
 
-        <header class="entry-header about-header">
-            <h1 class="entry-title">ABOUT US</h1>
-        </header>
-        <div class="secondabout">
-            <div class="container">
-                <div class="row about-first-div">
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <h2 class="main-heading">About Us</h2>
-                        <h4>Committed to Quality and Delivery Excellence</h4>
-                        <h6>Company History</h6>
-                        <p>Drawing from our over 30 years of furniture experience in the design industry, the management team has a combined 60 years of transportation experience specifically in the Designer and Special Commodities residential industry. After successfully owning and operating a multi-facility operation on the West Coast specializing on over 150 residential deliveries per day for some of the most elite designers and workrooms, the management team has undergone an acquisition that put their ability to bring their expertise to the beautiful state of Florida. After being backed with a high level of experience and a solid understanding of what the design trade needs, STS management is committed to the delivery experience and professionalism that is expected in this industry. Over the years, {{ appName }} has adapted to numerous shifts in the market. Furthermore, we have upheld our commitment to customer service and punctual deliveries. Consequently, our success has been guided by industry insights, innovation, and unwavering determination. This positioning has made us a robust organization ready to tackle any challenge. Most importantly, our team members have built a reputation for delivering exceptional quality and operational excellence.</p>
-
-                        <p>{{ appName }} – Ensuring on-time and successful deliveries for over 50 years!.</p>
-
-                    </div>
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <div class="about-img-div">
-                            <img class="img-about" :src="asset('images/wp/Subtract-1.png')" alt="About us">
-                            <div class="counter-img-div">
-                                <img :src="asset('images/wp/Rectangle-77.png')" alt="img-2">
-                                <div class="counterbox">
-                                    <span class="color-counter">50+</span>
-                                    <span>Years of experience</span>
+        <div class="guest-home guest-about-page">
+            <header class="about-hero-section">
+                <div class="container">
+                    <div class="about-hero-grid">
+                        <div class="about-hero-copy">
+                            <p class="about-hero-kicker">Our Legacy</p>
+                            <h1 class="about-hero-title">Delivering Trust & Excellence Since 1974</h1>
+                            <p class="about-hero-lead">We simplify logistics complexities with tailored strategies, resolving challenges and ensuring seamless delivery for local and international needs.</p>
+                            
+                            <div class="about-hero-actions">
+                                <Link :href="route('guest.track_order')" class="btn-about-hero">Start Tracking</Link>
+                                <div class="about-hero-badges">
+                                    <span class="about-badge">Expertise</span>
+                                    <span class="about-badge">Reliability</span>
+                                    <span class="about-badge">Experience</span>
                                 </div>
-                                <div class="counterbox">
-                                    <span class="color-counter color-487BAB">2452</span>
-                                    <span>Happy Clients</span>
-                                </div>
+                            </div>
+                        </div>
+
+                        <div class="about-hero-visual">
+                            <div class="about-visual-container">
+                                <div class="about-visual-shape"></div>
+                                <img :src="asset('images/wp/About-us.svg')" alt="About STS" class="about-main-img">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row mission-div">
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <img :src="asset('images/wp/our-mission-img.jpg')" alt="mission-img">
-                    </div>
+            </header>
 
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <div class="mission-textbox">
-                            <h3>Our Mission</h3>
-                            <p>Whether it's the meticulous packing and unpacking of a cherished antique, handling the entire contents of a home, or creating secure crates for unique custom furniture items, {{ appName }} has set a benchmark of excellence that stands unmatched in the industry. We take immense pride in pioneering innovative solutions for all your needs.</p>
+            <div class="about-content-wrapper">
+                <!-- Section: Mission -->
+                <section id="mission" class="about-info-section section-mission reveal-on-scroll">
+                    <div class="container">
+                        <div class="about-info-grid">
+                            <div class="about-info-visual">
+                                <div class="visual-accent-shape shape-left"></div>
+                                <img :src="asset('images/wp/our-mission-img.jpg')" alt="Our Mission" class="info-main-img">
+                            </div>
+                            <div class="about-info-copy">
+                                <p class="info-kicker">Our Purpose</p>
+                                <h2 class="info-title">Our Mission</h2>
+                                <p class="info-text">Whether it's the meticulous packing of a cherished antique, handling the entire contents of a home, or creating secure crates for unique custom items, STS has set a benchmark of excellence that stands unmatched in the industry.</p>
+                                <p class="info-text">We take immense pride in pioneering innovative solutions for all your needs, ensuring that every shipment is handled with the precision and care it deserves.</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="row mission-div values-div">
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <div class="right-mission-textbox">
-                            <h3>Our Values</h3>
-                            <p>At {{ appName }}, we've nurtured a culture that prioritizes ethical business practices. These values serve as our guiding principles, shaping our identity as individuals and as an organization. These four fundamental values not only influence our daily operations but also set us apart. Consequently, they give us a competitive edge. It's worth noting that those who do not wholeheartedly embrace these values do not find a long-term place within our team.</p>
+                <!-- Section: Values -->
+                <section id="values" class="about-info-section section-values reveal-on-scroll">
+                    <div class="container">
+                        <div class="about-info-grid grid-reverse">
+                            <div class="about-info-copy">
+                                <p class="info-kicker">Our Foundation</p>
+                                <h2 class="info-title">Our Values</h2>
+                                <p class="info-text">At STS, we've nurtured a culture that prioritizes ethical business practices. These values serve as our guiding principles, shaping our identity as individuals and as an organization.</p>
+                                <p class="info-text">Our fundamental values not only influence our daily operations but also set us apart, giving us a competitive edge in the global logistics market.</p>
+                            </div>
+                            <div class="about-info-visual">
+                                <div class="visual-accent-shape shape-right"></div>
+                                <img :src="asset('images/wp/image_2024_01_27T18_23_12_971Z.png')" alt="Our Values" class="info-main-img">
+                            </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6 col-12">
-                        <img :src="asset('images/wp/image_2024_01_27T18_23_12_971Z.png')" alt="mission-img">
-                    </div>
-                </div>
+                </section>
 
-                <div class="row services-div">
-                    <div class="col-lg-3 col-md-3 col-6">
-                        <img :src="asset('images/wp/moving-sofa.jpg')" alt="service-1">
-                        <h3>Willingness</h3>
-                        <p>We are always prepared and eager to go the extra mile in serving our customers. Moreover, our readiness extends internally as we support the growth and success of new employees and partners.</p>
+                <!-- Section: Principles Grid -->
+                <section class="about-principles-section reveal-on-scroll">
+                    <div class="container">
+                        <div class="principles-grid">
+                            <div class="principle-card">
+                                <div class="principle-card-img-wrap">
+                                    <img :src="asset('images/wp/moving-sofa.jpg')" alt="Willingness" class="principle-img">
+                                </div>
+                                <div class="principle-card-body">
+                                    <h3>Willingness</h3>
+                                    <p>We are always prepared and eager to go the extra mile in serving our customers. Moreover, our readiness extends internally as we support the growth and success of new employees and partners.</p>
+                                </div>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-card-img-wrap">
+                                    <img :src="asset('images/wp/image_2024_01_27T18_25_32_023Z.png')" alt="Sincerity" class="principle-img">
+                                </div>
+                                <div class="principle-card-body">
+                                    <h3>Sincerity</h3>
+                                    <p>Our commitment is to operate with honesty, transparency, and utmost respect for our customers, employees, and carrier partners.</p>
+                                </div>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-card-img-wrap">
+                                    <img :src="asset('images/wp/image_2024_01_27T18_26_40_547Z-1.png')" alt="Innovative" class="principle-img">
+                                </div>
+                                <div class="principle-card-body">
+                                    <h3>Innovative</h3>
+                                    <p>Continuous process improvement is ingrained in our DNA. Moreover, being innovative means taking action, introducing fresh ideas, embracing calculated risks, and swiftly learning from them.</p>
+                                </div>
+                            </div>
+                            <div class="principle-card">
+                                <div class="principle-card-img-wrap">
+                                    <img :src="asset('images/wp/image_2024_01_27T18_22_50_858Z-1.png')" alt="Empowerment" class="principle-img">
+                                </div>
+                                <div class="principle-card-body">
+                                    <h3>Empowerment</h3>
+                                    <p>We are dedicated to achieving excellence in our relationships with showrooms, customers, and employees.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-6">
-                        <img :src="asset('images/wp/image_2024_01_27T18_25_32_023Z.png')" alt="service-1">
-                        <h3>Sincerity</h3>
-                        <p>Our commitment is to operate with honesty, transparency, and utmost respect for our customers, employees, and carrier partners.</p>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-6">
-                        <img :src="asset('images/wp/image_2024_01_27T18_26_40_547Z-1.png')" alt="service-1">
-                        <h3>Innovative</h3>
-                        <p>Continuous process improvement is ingrained in our DNA. Moreover, being innovative means taking action, introducing fresh ideas, embracing calculated risks, and swiftly learning from them.</p>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-6">
-                        <img :src="asset('images/wp/image_2024_01_27T18_22_50_858Z-1.png')" alt="service-1">
-                        <h3>Empowerment</h3>
-                        <p>We are dedicated to achieving excellence in our relationships with showrooms, customers, and employees.</p>
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
     </GuestLayout>

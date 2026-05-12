@@ -4453,19 +4453,11 @@ div#track_order_div a:hover{
     align-items: center;
     margin: 0px 0px 7px 0px;
 }
-.main-content.home-content i {
-    font-size: 43px;
-    background: #fff;
-    padding: 25px 25px;
-    border-radius: 100%;
-    color: #789895;
-}
 
-.main-content.home-content p {
-    font-size: 18px;
-    font-weight: 600;
-    padding: 10px 30px;
-}
+
+
+
+
 button#btn_ask.submit-btn {
     background-color: #11635A !important;
     color: #fff;

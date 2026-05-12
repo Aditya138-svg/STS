@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
+  <style>
+    .node { fill: #0d9488; }
+    .node-glow { fill: #14b8a6; filter: blur(4px); opacity: 0.3; }
+    .line { stroke: rgba(13, 148, 136, 0.1); stroke-width: 0.5; stroke-dasharray: 4; animation: dash 60s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset: -1000; } }
+    .pulse { animation: pulse-glow 4s ease-in-out infinite; transform-origin: center; }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(2.5); }
+    }
+    .map-dot { fill: rgba(15, 23, 42, 0.06); }
+  </style>
+  
+  <!-- Subtle World Map Dot Matrix (Representative pattern) -->
+  <g class="map-dots">
+    <!-- North America -->
+    <circle class="map-dot" cx="200" cy="120" r="1.5" /> <circle class="map-dot" cx="220" cy="110" r="1.5" /> <circle class="map-dot" cx="240" cy="130" r="1.5" />
+    <circle class="map-dot" cx="180" cy="140" r="1.5" /> <circle class="map-dot" cx="210" cy="150" r="1.5" /> <circle class="map-dot" cx="230" cy="160" r="1.5" />
+    <!-- Europe -->
+    <circle class="map-dot" cx="500" cy="110" r="1.5" /> <circle class="map-dot" cx="520" cy="100" r="1.5" /> <circle class="map-dot" cx="540" cy="120" r="1.5" />
+    <circle class="map-dot" cx="490" cy="130" r="1.5" /> <circle class="map-dot" cx="515" cy="140" r="1.5" />
+    <!-- Asia -->
+    <circle class="map-dot" cx="750" cy="120" r="1.5" /> <circle class="map-dot" cx="780" cy="140" r="1.5" /> <circle class="map-dot" cx="810" cy="130" r="1.5" />
+    <circle class="map-dot" cx="840" cy="150" r="1.5" /> <circle class="map-dot" cx="770" cy="170" r="1.5" />
+    <!-- Africa -->
+    <circle class="map-dot" cx="520" cy="250" r="1.5" /> <circle class="map-dot" cx="540" cy="270" r="1.5" /> <circle class="map-dot" cx="510" cy="290" r="1.5" />
+    <circle class="map-dot" cx="530" cy="310" r="1.5" />
+    <!-- South America -->
+    <circle class="map-dot" cx="300" cy="320" r="1.5" /> <circle class="map-dot" cx="320" cy="350" r="1.5" /> <circle class="map-dot" cx="310" cy="380" r="1.5" />
+    <!-- Australia -->
+    <circle class="map-dot" cx="850" cy="380" r="1.5" /> <circle class="map-dot" cx="880" cy="390" r="1.5" /> <circle class="map-dot" cx="860" cy="410" r="1.5" />
+  </g>
+  
+  <!-- Connections -->
+  <g class="connections">
+    <path class="line" d="M210,150 Q350,100 515,140" />
+    <path class="line" d="M515,140 Q650,110 780,140" />
+    <path class="line" d="M210,150 Q250,250 320,350" />
+    <path class="line" d="M515,140 Q550,220 530,310" />
+    <path class="line" d="M780,140 Q850,250 880,390" />
+    <path class="line" d="M320,350 Q500,400 880,390" />
+  </g>
+
+  <!-- Glowing Nodes -->
+  <g class="nodes">
+    <!-- NY -->
+    <circle class="node-glow pulse" cx="210" cy="150" r="6" style="animation-delay: 0s;" />
+    <circle class="node" cx="210" cy="150" r="3" />
+    <!-- London -->
+    <circle class="node-glow pulse" cx="515" cy="140" r="6" style="animation-delay: 1s;" />
+    <circle class="node" cx="515" cy="140" r="3" />
+    <!-- Tokyo -->
+    <circle class="node-glow pulse" cx="780" cy="140" r="6" style="animation-delay: 2s;" />
+    <circle class="node" cx="780" cy="140" r="3" />
+    <!-- Sao Paulo -->
+    <circle class="node-glow pulse" cx="320" cy="350" r="6" style="animation-delay: 0.5s;" />
+    <circle class="node" cx="320" cy="350" r="3" />
+    <!-- Lagos -->
+    <circle class="node-glow pulse" cx="530" cy="310" r="6" style="animation-delay: 1.5s;" />
+    <circle class="node" cx="530" cy="310" r="3" />
+    <!-- Sydney -->
+    <circle class="node-glow pulse" cx="880" cy="390" r="6" style="animation-delay: 2.5s;" />
+    <circle class="node" cx="880" cy="390" r="3" />
+  </g>
+</svg>

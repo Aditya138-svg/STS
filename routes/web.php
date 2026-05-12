@@ -16,4 +16,7 @@ Route::middleware('auth')->group(function (): void {
     });
 });
 
+Route::get('/terms', fn () => Inertia::render('Auth/Terms'))->name('terms');
+Route::get('/privacy', fn () => Inertia::render('Auth/Privacy'))->name('privacy');
+
 require __DIR__.'/guest.php';

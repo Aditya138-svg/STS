@@ -2,6 +2,7 @@ import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import GlobalLoader from './Components/GlobalLoader.vue'
 
 const pages = import.meta.glob([
     './Pages/Guest/**/*.vue',
@@ -28,7 +29,12 @@ createInertiaApp({
 
     return module
   },
+  progress: false,
   setup({ el, App, props }) {
     createApp({ render: () => h(App, props) }).mount(el)
+
+    const loaderDiv = document.createElement('div')
+    document.body.appendChild(loaderDiv)
+    createApp(GlobalLoader).mount(loaderDiv)
   },
 })
